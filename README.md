@@ -23,6 +23,12 @@ Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférenc
 
 Le son démarre au premier appui sur une touche ou au premier toucher : c'est une règle des navigateurs.
 
+## Conseils
+
+- Le laser tue, les ions neutralisent sans tuer. Chaque mort pilotée coûte de la paix ; les drones n'ont personne à bord.
+- Le canon à ions a des charges limitées (affichées à côté de son nom). Ramassez les cellules bleues.
+- Abattez toute une vague : bonus de points, et une cellule d'ions pour une vague de drones. Les trajectoires sont toujours les mêmes : on peut les apprendre.
+
 ## Plein écran
 
 - **Ordinateur (Windows, Mac, Linux), Android, iPad :** touche F, ou « Plein écran » en haut à droite de l'écran titre, ou le menu pause. Échap pour sortir.
