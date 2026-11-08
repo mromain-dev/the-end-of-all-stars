@@ -1,0 +1,35 @@
+# The End of All Stars
+
+Un shoot'em up rétro, dans l'esprit des jeux Amiga, par le studio Infinite Mega Stars.
+
+**Jouer : https://mromain-dev.github.io/the-end-of-all-stars/**
+
+Freiheit et Sidicium se font la guerre depuis 1257 ans. Vous êtes Jean Croissant, à bord du Traversant.
+Vous portez la réponse de votre empereur à la princesse Automne : traversez la frontière sans mourir, et sans trop tuer.
+
+C'est un prototype de test : le secteur 1, avec le colonel Gaspard et trois mini-jeux.
+Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférence à l'horizontale).
+
+## Commandes
+
+| Action | Clavier | Écran tactile |
+|---|---|---|
+| Se déplacer | Flèches, ZQSD ou WASD | Glisser le pouce gauche |
+| Tirer | Espace | Bouton de tir, à droite |
+| Changer d'arme | Maj ou E (ou 1, 2, 3) | Bouton d'arme, à droite |
+| Pause | P | Bouton pause, en haut à droite |
+| Couper le son | M | |
+
+Le son démarre au premier appui sur une touche ou au premier toucher : c'est une règle des navigateurs.
+
+## Ce dépôt
+
+Il ne contient que le jeu prêt à jouer (`index.html`, un seul fichier) et sa mise en ligne.
+Le code source est développé à part ; ne modifiez pas `index.html` ici, il est remplacé à chaque nouvelle version.
+
+## Licence et mentions
+
+Jeu sous licence CC BY-NC-SA 4.0 : partage et modification permis en citant Infinite Mega Stars, sans usage commercial, sous la même licence (voir [LICENSE](LICENSE)).
+Moteur Phaser, sous licence MIT.
+
+Sprites : illustrations générées par IA, retouchées à la main. La mention figure aussi sur l'écran titre du jeu.
