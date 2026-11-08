@@ -1,0 +1,32 @@
+{
+  "name": "The End of All Stars",
+  "short_name": "End of Stars",
+  "description": "Shoot’em up rétro par le studio Infinite Mega Stars. Sprites : illustrations générées par IA, retouchées.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#07050f",
+  "theme_color": "#07050f",
+  "icons": [
+    {
+      "src": "icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

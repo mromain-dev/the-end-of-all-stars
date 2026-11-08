@@ -18,9 +18,16 @@ Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférenc
 | Tirer | Espace | Bouton de tir, à droite |
 | Changer d'arme | Maj ou E (ou 1, 2, 3) | Bouton d'arme, à droite |
 | Pause | P | Bouton pause, en haut à droite |
-| Couper le son | M | |
+| Couper le son | M | Menu pause |
+| Plein écran | F | « Plein écran » en haut à droite de l'écran titre, ou menu pause |
 
 Le son démarre au premier appui sur une touche ou au premier toucher : c'est une règle des navigateurs.
+
+## Plein écran
+
+- **Ordinateur (Windows, Mac, Linux), Android, iPad :** touche F, ou « Plein écran » en haut à droite de l'écran titre, ou le menu pause. Échap pour sortir.
+- **iPhone :** Safari ne met pas une page web en plein écran. Touchez « Partager », puis « Sur l'écran d'accueil » : le jeu s'ouvre ensuite depuis son icône, sans les barres du navigateur.
+- **Android :** « Ajouter à l'écran d'accueil » (ou « Installer l'application ») dans le menu de Chrome fonctionne aussi, en plein écran et à l'horizontale.
 
 ## Ce dépôt
 
