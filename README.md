@@ -28,6 +28,8 @@ Le son démarre au premier appui sur une touche ou au premier toucher : c'est un
 - Le laser tue, les ions neutralisent sans tuer. Chaque mort pilotée coûte de la paix ; les drones n'ont personne à bord.
 - Le canon à ions a des charges limitées (affichées à côté de son nom). Ramassez les cellules bleues.
 - Abattez toute une vague : bonus de points, et une cellule d'ions pour une vague de drones. Les trajectoires sont toujours les mêmes : on peut les apprendre.
+- Quand un seul pilote d'une escadrille reste en vie, il clignote en rouge. L'abattre double les points… et la paix perdue. Épargnez-le aux ions, ou laissez-le filer.
+- Sur l'écran titre, pilotez jusqu'à un hangar pour choisir la difficulté : Recrue (facile), Émissaire (normal) ou Diplomate (exigeant).
 
 ## Plein écran
 
