@@ -31,6 +31,12 @@ Le son démarre au premier appui sur une touche ou au premier toucher : c'est un
 - Quand un seul pilote d'une escadrille reste en vie, il clignote en rouge. L'abattre double les points… et la paix perdue. Épargnez-le aux ions, ou laissez-le filer.
 - Après l'écran titre, choisissez votre tunnel de lancement : Recrue (facile), Émissaire (normal) ou Diplomate (exigeant).
 
+## Prototype du niveau 2 en 3D
+
+Le niveau « Les chantiers » se jouera en 3D, vue derrière le vaisseau. Un prototype d'une quarantaine de secondes est jouable :
+**https://mromain-dev.github.io/the-end-of-all-stars/#chantiers** (ou « Mini-jeux » sur l'écran titre).
+La touche O (ou le bouton OMBRAGE) compare l'ombrage plat et l'ombrage de Gouraud tramé.
+
 ## Plein écran
 
 - **Ordinateur (Windows, Mac, Linux), Android, iPad :** touche F, ou « Plein écran » en haut à droite de l'écran titre, ou le menu pause. Échap pour sortir.
