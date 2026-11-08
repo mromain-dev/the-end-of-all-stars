@@ -5,9 +5,14 @@ Un shoot'em up rétro, dans l'esprit des jeux Amiga, par le studio Infinite Mega
 **Jouer : https://mromain-dev.github.io/the-end-of-all-stars/**
 
 Freiheit et Sidicium se font la guerre depuis 1257 ans. Vous êtes Jean Croissant, à bord du Traversant.
-Vous portez la réponse de votre empereur à la princesse Automne : traversez la frontière sans mourir, et sans trop tuer.
+Vous portez la réponse de votre empereur à la princesse Automne : traversez sans mourir, et sans trop tuer.
 
-C'est un prototype de test : le secteur 1, avec le colonel Gaspard et trois mini-jeux.
+C'est une version de test, avec deux secteurs :
+
+- **Secteur 1, la frontière**, en 2D : le colonel Gaspard ;
+- **Secteur 2, les chantiers**, en 3D, vue derrière le vaisseau : les chantiers de Sidicium, le hall d'assemblage, la ville des ouvriers la nuit, puis le mécha du général Melchior.
+
+Trois mini-jeux attendent aux points de passage.
 Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférence à l'horizontale).
 
 ## Commandes
@@ -31,11 +36,15 @@ Le son démarre au premier appui sur une touche ou au premier toucher : c'est un
 - Quand un seul pilote d'une escadrille reste en vie, il clignote en rouge. L'abattre double les points… et la paix perdue. Épargnez-le aux ions, ou laissez-le filer.
 - Après l'écran titre, choisissez votre tunnel de lancement : Recrue (facile), Émissaire (normal) ou Diplomate (exigeant).
 
-## Prototype du niveau 2 en 3D
+## Secteur 2 : les chantiers
 
-Le niveau « Les chantiers » se jouera en 3D, vue derrière le vaisseau. Un prototype d'une quarantaine de secondes est jouable :
-**https://mromain-dev.github.io/the-end-of-all-stars/#chantiers** (ou « Mini-jeux » sur l'écran titre).
-La touche O (ou le bouton OMBRAGE) compare l'ombrage plat et l'ombrage de Gouraud tramé.
+Il suit le secteur 1 (le score continue). Accès direct : **https://mromain-dev.github.io/the-end-of-all-stars/#chantiers** (ou « Mini-jeux » sur l'écran titre).
+
+- Les vitres se traversent : elles volent en éclats. On peut aussi tirer dedans.
+- Grues, anneaux qui tournent, bras de soudure, presses : il y a toujours un passage. Les conseils à l'écran préviennent avant chaque obstacle.
+- En ville, les voitures sont civiles : ne tirez pas dessus.
+- Le général Melchior : visez le cœur du réacteur, au milieu du buste. Ses jambes sont blindées, les ions glissent dessus. Quand sa visière vous vise, changez de hauteur ; quand il frappe le sol, restez en haut.
+- Sur un petit téléphone, la 3D peut passer d'elle-même à 30 images par seconde pour rester fluide.
 
 ## Plein écran
 
