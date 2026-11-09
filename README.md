@@ -7,10 +7,14 @@ Un shoot'em up rétro, dans l'esprit des jeux Amiga, par le studio Infinite Mega
 Freiheit et Sidicium se font la guerre depuis 1257 ans. Vous êtes Jean Croissant, à bord du Traversant.
 Vous portez la réponse de votre empereur à la princesse Automne : traversez sans mourir, et sans trop tuer.
 
-C'est une version de test, avec deux secteurs :
+C'est une version de test. Quatre secteurs, chacun en hommage à un genre de l'époque :
 
 - **Secteur 1, la frontière**, en 2D : le colonel Gaspard ;
-- **Secteur 2, les chantiers**, en 3D, vue derrière le vaisseau : les chantiers de Sidicium, le hall d'assemblage, la ville des ouvriers la nuit, puis le mécha du général Melchior.
+- **Secteur 2, les chantiers**, en 3D, vue derrière le vaisseau : les chantiers de Sidicium, le hall d'assemblage, la ville des ouvriers la nuit, puis le mécha du général Melchior ;
+- **Secteur 3, la flotte**, en vue de dessus : la flotte impériale défile sous vos ailes, jusqu'au vaisseau amiral de Balthazar ;
+- **Secteur 4, la capitale**, en 2D, à l'aube : la garde impériale, puis le suprême commandeur Archibald.
+
+Entre deux secteurs, un sauvetage de civils (facultatif) peut faire gagner une arme. À la fin, trois fins possibles : la paix, la trêve, la guerre.
 
 Trois mini-jeux attendent aux points de passage.
 Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférence à l'horizontale).
@@ -63,6 +67,18 @@ Il suit le secteur 1 (le score continue). Accès direct : **https://mromain-dev.
 - Le général Melchior : visez le cœur du réacteur, au milieu du buste. Ses jambes sont blindées, les ions glissent dessus. Quand sa visière vous vise, changez de hauteur ; quand il frappe le sol, restez en haut.
 - Sur un petit téléphone, la 3D peut passer d'elle-même à 30 images par seconde pour rester fluide.
 
+## Les armes et les sauvetages
+
+- Trois familles d'armes. Le bouton d'arme les fait défiler ; au clavier, 1, 2 et 3 choisissent une famille, et un second appui passe à son autre arme.
+- Entre deux secteurs, un sauvetage : posez-vous près des survivants, quatre places à bord, ramenez-les à la balise verte. Vous n'avez pas d'arme, seulement un bouclier.
+- Cinq civils sauvés font gagner une arme : le déflecteur (renvoie les tirs), puis le filet magnétique (immobilise les petits vaisseaux tout proches, sans charge d'ions), puis les missiles chercheurs (attention : ils visent aussi les civils).
+- Chaque civil sauvé compte pour la fin du jeu, comme la vie qu'il vous reste à la fin de chaque secteur.
+
+## L'éditeur de sprites
+
+Un outil du studio, pour dessiner et animer les sprites à la palette du jeu : https://mromain-dev.github.io/the-end-of-all-stars/editeur-sprites.html
+Le fichier `essai-chasseur.txt` de ce dépôt s'y ouvre : c'est l'essai du chasseur redessiné, en quatre images.
+
 ## Vous testez le jeu ?
 
 Les questions à se poser en jouant sont dans [TESTEURS.md](TESTEURS.md). Vos réponses servent à régler la difficulté.
@@ -82,6 +98,11 @@ Des liens directs, à envoyer aux testeurs :
 | Le hall d'assemblage | https://mromain-dev.github.io/the-end-of-all-stars/#hall |
 | La ville la nuit | https://mromain-dev.github.io/the-end-of-all-stars/#ville |
 | Le général Melchior (boss 2) | https://mromain-dev.github.io/the-end-of-all-stars/#melchior |
+| La flotte, au début | https://mromain-dev.github.io/the-end-of-all-stars/#flotte |
+| L'amiral Balthazar (boss 3) | https://mromain-dev.github.io/the-end-of-all-stars/#balthazar |
+| La capitale, au début | https://mromain-dev.github.io/the-end-of-all-stars/#capitale |
+| Le commandeur Archibald (boss 4) | https://mromain-dev.github.io/the-end-of-all-stars/#archibald |
+| Un sauvetage de civils | https://mromain-dev.github.io/the-end-of-all-stars/#sauvetage |
 
 Pour passer les mini-jeux, ajoutez `?sansminijeux` avant le `#` : https://mromain-dev.github.io/the-end-of-all-stars/?sansminijeux#ville
 

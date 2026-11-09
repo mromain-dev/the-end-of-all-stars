@@ -30,6 +30,13 @@ Il n'y a qu'une jauge : votre vie. Elle baisse quand vous êtes touché, et auss
 10. Le jeu était-il fluide ? Si non, à quel endroit ?
 11. Le général Melchior : combien de temps a duré le combat ? Trop court, trop long ?
 
+## Les secteurs 3 et 4, les sauvetages, la fin
+
+12 bis. Secteur 3 (vue de dessus) : lisiez-vous bien les ennemis sur les coques ? Les intercepteurs d'élite étaient-ils trop chers à abattre ?
+12 ter. Le filet, le déflecteur, les missiles : lesquels avez-vous utilisés ? Lesquels avez-vous oubliés ?
+12 quater. Les sauvetages : amusants, ou une corvée ? Combien de civils avez-vous sauvés ?
+12 quinquies. Quelle fin avez-vous eue ? Vous a-t-elle paru juste ?
+
 ## Les commandes
 
 12. Une commande vous a-t-elle gêné ? Laquelle ?
@@ -51,5 +58,10 @@ Il n'y a qu'une jauge : votre vie. Elle baisse quand vous êtes touché, et auss
 | Le hall d'assemblage | https://mromain-dev.github.io/the-end-of-all-stars/#hall |
 | La ville la nuit | https://mromain-dev.github.io/the-end-of-all-stars/#ville |
 | Le général Melchior (boss 2) | https://mromain-dev.github.io/the-end-of-all-stars/#melchior |
+| La flotte, vue de dessus (secteur 3) | https://mromain-dev.github.io/the-end-of-all-stars/#flotte |
+| L'amiral Balthazar (boss 3) | https://mromain-dev.github.io/the-end-of-all-stars/#balthazar |
+| La capitale, à l'aube (secteur 4) | https://mromain-dev.github.io/the-end-of-all-stars/#capitale |
+| Le commandeur Archibald (boss 4) | https://mromain-dev.github.io/the-end-of-all-stars/#archibald |
+| Un sauvetage de civils | https://mromain-dev.github.io/the-end-of-all-stars/#sauvetage |
 
 Un bug ? Dites où vous étiez, ce que vous faisiez, et ce qui s'est passé. Une capture d'écran aide beaucoup.

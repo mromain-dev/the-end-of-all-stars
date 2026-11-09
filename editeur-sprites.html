@@ -1,0 +1,1899 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Éditeur de sprites · The End of All Stars</title>
+<style>
+  /* ---------- Couleurs et bases ---------- */
+  :root {
+    --fond: #1b1b1d;
+    --panneau: #252527;
+    --relief: #353535;
+    --bord: #47474b;
+    --texte: #ededed;
+    --doux: #a9a9af;
+    --bleu: #1e73be;
+    --vert: #6abd44;
+    --or: #f5c451;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--fond);
+    color: var(--texte);
+    font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+  h1, h2, p, figure { margin: 0; }
+  h2 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--doux);
+    margin: 0 0 6px;
+  }
+  section + section { margin-top: 14px; }
+
+  /* ---------- Boutons et champs ---------- */
+  button {
+    font: inherit;
+    color: inherit;
+    background: var(--relief);
+    border: 1px solid var(--bord);
+    border-radius: 6px;
+    padding: 4px 10px;
+    min-height: 30px;
+    cursor: pointer;
+    touch-action: manipulation;
+    white-space: nowrap;
+  }
+  button:hover:not(:disabled) { background: #424246; }
+  button:disabled { opacity: .45; cursor: default; }
+  button.principal, button.actif { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+  button.principal:hover:not(:disabled), button.actif:hover:not(:disabled) { background: #2a82cf; }
+  button.vert { background: var(--vert); border-color: var(--vert); color: #0f2208; font-weight: 600; }
+  button.vert:hover:not(:disabled) { background: #7acb55; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--or);
+    outline-offset: 1px;
+  }
+  input[type="text"], input[type="number"], textarea {
+    font: inherit;
+    color: inherit;
+    background: #19191b;
+    border: 1px solid var(--bord);
+    border-radius: 6px;
+    padding: 4px 8px;
+    min-height: 30px;
+  }
+  input[type="number"] { width: 5.5em; }
+  input[type="checkbox"] { accent-color: var(--bleu); width: 16px; height: 16px; margin: 0; }
+  input[type="color"] {
+    width: 40px; height: 30px; padding: 2px;
+    background: #19191b; border: 1px solid var(--bord); border-radius: 6px; cursor: pointer;
+  }
+  kbd {
+    font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--doux);
+    margin-left: 4px;
+  }
+  button.actif kbd { color: #d6e8f7; }
+  .option { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
+  .ligne { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .aide { font-size: 12px; color: var(--doux); }
+
+  /* ---------- Barre du haut ---------- */
+  .barre {
+    display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap;
+    padding: 7px 12px;
+    background: var(--panneau);
+    border-bottom: 1px solid var(--relief);
+  }
+  .barre h1 { font-size: 15px; font-weight: 650; white-space: nowrap; }
+  .barre h1 span { font-weight: 400; color: var(--doux); margin-left: 6px; }
+  .barre label { display: flex; align-items: center; gap: 6px; color: var(--doux); }
+  .barre label input { width: 150px; color: var(--texte); }
+  .barre .ligne { margin-left: auto; }
+  .trait { width: 1px; align-self: stretch; background: var(--bord); margin: 2px 4px; }
+
+  /* ---------- Corps : outils, dessin, palette ---------- */
+  main {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 306px;
+    min-height: 0;
+  }
+  .volet { background: var(--panneau); padding: 10px 12px; overflow: auto; min-height: 0; }
+  .volet.gauche { border-right: 1px solid var(--relief); }
+  .volet.droite { border-left: 1px solid var(--relief); }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .deux .large { grid-column: 1 / -1; }
+  .quatre { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+  .quatre button, .deux button { padding-left: 4px; padding-right: 4px; }
+  .zoom { display: grid; grid-template-columns: 30px minmax(0, 1fr) 30px auto; gap: 6px; align-items: center; margin-bottom: 4px; }
+  .zoom button { padding-left: 8px; padding-right: 8px; }
+  #zoom-valeur { text-align: center; font-variant-numeric: tabular-nums; }
+
+  .zone { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-width: 0; min-height: 0; }
+  .cadre { display: flex; overflow: auto; padding: 12px; background: #131315; }
+  #canevas {
+    margin: auto; flex: none; display: block;
+    image-rendering: pixelated;
+    touch-action: none;
+    cursor: crosshair;
+    box-shadow: 0 0 0 1px #000, 0 0 0 2px #5c5c62;
+  }
+  .etat {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 4px 12px;
+    font-size: 12px; color: var(--doux);
+    border-top: 1px solid var(--relief);
+    white-space: nowrap; overflow: hidden;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Palette ---------- */
+  #nuancier { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+  .pastille {
+    aspect-ratio: 1; min-height: 0; padding: 0;
+    border: 1px solid rgba(0, 0, 0, .6); border-radius: 5px;
+    font: 600 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .pastille.actif { outline: 2px solid var(--or); outline-offset: 1px; border-color: #000; }
+  .edition { display: flex; align-items: center; gap: 6px; margin: 10px 0 8px; }
+  .edition label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--doux); }
+  #couleur-lettre { width: 34px; text-align: center; padding: 4px 2px; color: var(--texte); font-family: ui-monospace, monospace; }
+  #couleur-hex { width: 82px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  /* ---------- Aperçus ---------- */
+  .apercu {
+    display: flex; align-items: flex-end; gap: 14px;
+    padding: 10px 12px 6px; border-radius: 6px;
+    overflow-x: auto;   /* un grand sprite défile dans son cadre ; la hauteur suit le ×4 */
+  }
+  .apercu + .apercu { margin-top: 8px; }
+  .apercu.sombre { background: #07050f; color: #a9a9af; border: 1px solid var(--relief); }
+  .apercu.clair { background: #e4e6ec; color: #4a4a50; border: 1px solid #e4e6ec; }
+  .apercu figure { flex: none; text-align: center; }
+  .apercu canvas { display: block; margin: 0 auto; image-rendering: pixelated; }
+  .apercu figcaption { font-size: 11px; margin-top: 4px; }
+
+  /* ---------- Bande des images ---------- */
+  .bande {
+    display: flex; align-items: center; gap: 14px;
+    padding: 8px 12px;
+    background: var(--panneau);
+    border-top: 1px solid var(--relief);
+    min-width: 0;
+  }
+  .bande h2 { margin: 0; }
+  #liste-images {
+    flex: 1; min-width: 80px;
+    display: flex; gap: 6px; overflow-x: auto;
+    padding: 3px; align-self: stretch; align-items: center;
+    background: #19191b; border: 1px solid var(--relief); border-radius: 6px;
+  }
+  .vignette {
+    flex: none; width: 78px; height: 62px; padding: 3px 3px 1px;
+    display: grid; grid-template-rows: minmax(0, 1fr) auto; place-items: center;
+    background: #55555c;
+    border-color: #2a2a2d;
+  }
+  .vignette:hover:not(:disabled) { background: #5f5f67; }
+  .vignette canvas { image-rendering: pixelated; display: block; }
+  .vignette span { font-size: 11px; line-height: 1.2; color: #fff; }
+  .vignette.actif, .vignette.actif:hover:not(:disabled) { background: #55555c; border-color: var(--or); box-shadow: 0 0 0 1px var(--or); }
+  .bande label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  #vitesse { width: 4.2em; }
+  #btn-lecture { min-width: 84px; }
+
+  /* ---------- Boîte de dialogue, dépôt, message ---------- */
+  #voile {
+    position: fixed; inset: 0; z-index: 20;
+    background: rgba(0, 0, 0, .62);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .boite {
+    background: var(--panneau);
+    border: 1px solid var(--bord); border-radius: 10px;
+    padding: 16px 18px;
+    width: min(540px, 100%); max-height: 100%; overflow: auto;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+  }
+  .boite h2 { font-size: 16px; letter-spacing: 0; text-transform: none; color: var(--texte); margin-bottom: 10px; }
+  .boite p { margin-bottom: 10px; }
+  .boite .champs { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+  .boite .champs label { display: flex; align-items: center; gap: 6px; }
+  .boite textarea { width: 100%; min-height: 120px; resize: vertical; }
+  #boite-boutons { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .jeu-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .jeu {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 6px; text-align: left; min-height: 40px;
+  }
+  .jeu i { flex: none; width: 26px; height: 26px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, .6); }
+  .jeu span { line-height: 1.15; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .jeu small { display: block; color: var(--doux); font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .jeu.present { border-color: var(--vert); }
+  .jeu.present small { color: var(--vert); }
+  #depot {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(30, 115, 190, .28);
+    border: 3px dashed var(--or);
+    font-size: 20px; font-weight: 600;
+    pointer-events: none;
+  }
+  #message {
+    position: fixed; left: 50%; bottom: 126px; transform: translateX(-50%); z-index: 25;
+    max-width: min(640px, calc(100% - 32px));
+    padding: 8px 14px; border-radius: 8px;
+    background: #101012; border: 1px solid var(--vert);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .5);
+  }
+  #message.erreur { border-color: var(--or); color: var(--or); }
+
+  /* ---------- Petits écrans : tout s'empile, la page défile ---------- */
+  @media (max-width: 900px) {
+    html, body { height: auto; }
+    body { display: block; overflow: auto; }
+    main { display: block; }
+    .barre .ligne { margin-left: 0; }
+    .volet { border: 0; border-bottom: 1px solid var(--relief); }
+    .cadre { height: 56vh; }
+    .bande { flex-wrap: wrap; }
+    #liste-images { flex-basis: 100%; }
+    #message { bottom: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ Barre du haut : nom et fichiers ============ -->
+<header class="barre">
+  <h1>Éditeur de sprites<span>The End of All Stars</span></h1>
+  <label>Nom <input id="nom" type="text" value="sprite" spellcheck="false" autocomplete="off" title="Nom du fichier, sans extension"></label>
+  <div class="ligne">
+    <button type="button" id="btn-nouveau" title="Commencer un sprite vide">Nouveau</button>
+    <button type="button" id="btn-ouvrir" title="Ouvrir un fichier .txt (ou le déposer sur la page)">Ouvrir</button>
+    <button type="button" id="btn-enregistrer" class="vert" title="Télécharger le fichier .txt (Ctrl+S)">Enregistrer</button>
+    <span class="trait"></span>
+    <button type="button" id="btn-importer-png" title="Lire un PNG à la taille du jeu">Importer PNG</button>
+    <button type="button" id="btn-exporter-png" title="Télécharger la planche PNG, à la taille réelle">Exporter PNG</button>
+    <span class="trait"></span>
+    <button type="button" id="btn-taille" title="Changer la taille du canevas">Taille</button>
+    <button type="button" id="btn-notes" title="Lignes de commentaire du fichier">Notes</button>
+  </div>
+  <input id="fichier-txt" type="file" accept=".txt,text/plain" hidden>
+  <input id="fichier-png" type="file" accept=".png,image/png" hidden>
+</header>
+
+<main>
+  <!-- ============ Volet gauche : outils ============ -->
+  <aside class="volet gauche">
+    <section>
+      <h2>Outils</h2>
+      <div class="deux" id="outils">
+        <button type="button" data-outil="crayon" title="Dessiner. Clic droit : gommer">Crayon<kbd>C</kbd></button>
+        <button type="button" data-outil="gomme" title="Rendre transparent">Gomme<kbd>G</kbd></button>
+        <button type="button" data-outil="pot" title="Remplir une zone d'une seule couleur">Pot<kbd>P</kbd></button>
+        <button type="button" data-outil="pipette" title="Prendre la couleur d'un pixel">Pipette<kbd>I</kbd></button>
+        <button type="button" data-outil="selection" class="large" title="Tracer un rectangle, puis le glisser pour le déplacer. Suppr : effacer. Échap : lâcher">Sélection<kbd>S</kbd></button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Historique</h2>
+      <div class="deux">
+        <button type="button" id="btn-annuler" title="Annuler (Ctrl+Z)">Annuler</button>
+        <button type="button" id="btn-retablir" title="Rétablir (Ctrl+Y)">Rétablir</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Image ou sélection</h2>
+      <div class="deux">
+        <button type="button" id="btn-miroir-h" title="Miroir horizontal : la gauche passe à droite">Miroir ↔</button>
+        <button type="button" id="btn-miroir-v" title="Miroir vertical : le haut passe en bas">Miroir ↕</button>
+      </div>
+      <div class="quatre" title="Décaler d'un pixel (flèches du clavier)">
+        <button type="button" data-decalage="-1,0" aria-label="Décaler d'un pixel à gauche">←</button>
+        <button type="button" data-decalage="0,-1" aria-label="Décaler d'un pixel vers le haut">↑</button>
+        <button type="button" data-decalage="0,1" aria-label="Décaler d'un pixel vers le bas">↓</button>
+        <button type="button" data-decalage="1,0" aria-label="Décaler d'un pixel à droite">→</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Symétrie en direct</h2>
+      <label class="option" title="Symétrie verticale : ce qui est dessiné en haut est recopié en bas"><input type="checkbox" id="sym-v"> Haut ↔ bas</label>
+      <label class="option" title="Symétrie horizontale : ce qui est dessiné à gauche est recopié à droite"><input type="checkbox" id="sym-h"> Gauche ↔ droite</label>
+    </section>
+
+    <section>
+      <h2>Affichage</h2>
+      <div class="zoom">
+        <button type="button" id="btn-zoom-moins" aria-label="Réduire le zoom" title="Réduire (touche -)">−</button>
+        <span id="zoom-valeur">×12</span>
+        <button type="button" id="btn-zoom-plus" aria-label="Agrandir le zoom" title="Agrandir (touche +)">+</button>
+        <button type="button" id="btn-zoom-ajuster" title="Voir tout le sprite">Ajuster</button>
+      </div>
+      <label class="option"><input type="checkbox" id="quadrillage" checked> Quadrillage</label>
+    </section>
+  </aside>
+
+  <!-- ============ Centre : grille de dessin ============ -->
+  <section class="zone">
+    <div class="cadre" id="cadre"><canvas id="canevas" width="32" height="16" aria-label="Grille de dessin"></canvas></div>
+    <div class="etat"><span id="etat-gauche"></span><span id="etat-droite"></span></div>
+  </section>
+
+  <!-- ============ Volet droit : palette et aperçus ============ -->
+  <aside class="volet droite">
+    <section>
+      <h2>Palette</h2>
+      <div id="nuancier"></div>
+      <p class="aide" id="palette-vide" hidden>Aucune couleur. Ajouter une couleur pour dessiner.</p>
+      <div class="edition" id="edition">
+        <label>Lettre <input id="couleur-lettre" type="text" autocomplete="off" spellcheck="false" title="Lettre de la couleur dans le fichier"></label>
+        <input id="couleur-choix" type="color" aria-label="Choisir la couleur" title="Choisir la couleur">
+        <input id="couleur-hex" type="text" autocomplete="off" spellcheck="false" aria-label="Code de la couleur" title="Code de la couleur, par exemple #f5c451">
+      </div>
+      <div class="deux">
+        <button type="button" id="btn-couleur-ajouter" title="Ajouter une couleur avec une lettre libre">+ Couleur</button>
+        <button type="button" id="btn-palette-jeu" title="Choisir parmi les couleurs du jeu">Palette du jeu</button>
+        <button type="button" id="btn-couleur-supprimer" title="Supprimer la couleur choisie">Supprimer</button>
+        <button type="button" id="btn-couleur-nettoyer" title="Retirer les couleurs qui ne servent à aucun pixel">Nettoyer</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Aperçus</h2>
+      <div class="apercu sombre" id="apercu-sombre" aria-label="Aperçu sur fond sombre"></div>
+      <div class="apercu clair" id="apercu-clair" aria-label="Aperçu sur fond clair"></div>
+    </section>
+  </aside>
+</main>
+
+<!-- ============ Bande du bas : images de l'animation ============ -->
+<footer class="bande">
+  <h2>Images</h2>
+  <div class="ligne">
+    <button type="button" id="btn-image-ajouter" title="Ajouter une image vide après celle-ci">Ajouter</button>
+    <button type="button" id="btn-image-dupliquer" title="Copier cette image juste après">Dupliquer</button>
+    <button type="button" id="btn-image-supprimer" title="Supprimer cette image">Supprimer</button>
+    <button type="button" id="btn-image-gauche" aria-label="Déplacer l'image vers la gauche" title="Déplacer l'image vers la gauche">←</button>
+    <button type="button" id="btn-image-droite" aria-label="Déplacer l'image vers la droite" title="Déplacer l'image vers la droite">→</button>
+  </div>
+  <div id="liste-images"></div>
+  <label title="Montrer l'image précédente en transparence"><input type="checkbox" id="oignon"> Pelure d'oignon</label>
+  <label title="Images par seconde">Vitesse <input type="number" id="vitesse" min="1" max="60" step="1" value="8"> img/s</label>
+  <button type="button" id="btn-lecture" title="Animer les aperçus en boucle">Lecture</button>
+</footer>
+
+<!-- ============ Boîte de dialogue, zone de dépôt, message ============ -->
+<div id="voile" hidden>
+  <div class="boite" role="dialog" aria-modal="true" aria-labelledby="boite-titre">
+    <h2 id="boite-titre"></h2>
+    <div id="boite-corps"></div>
+    <div id="boite-boutons"></div>
+  </div>
+</div>
+<div id="depot" hidden>Déposer un fichier .txt ou .png</div>
+<div id="message" role="status" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  // =====================================================================
+  //  Constantes
+  // =====================================================================
+
+  /** Couleurs du jeu proposées par le bouton « Palette du jeu ». */
+  const PALETTE_JEU = [
+    ['void', '07050f'], ['ink', '120c24'], ['indigo', '1d1440'], ['purple', '3a1f5c'],
+    ['plum', '5e2a6b'], ['mauve', '8a4a7d'], ['rust', 'a4462a'], ['orange', 'e07a2f'],
+    ['amber', 'f2a541'], ['gold', 'f5c451'], ['cream', 'f3ead2'], ['white', 'ffffff'],
+    ['steelDark', '3a4258'], ['steel', '7d8aa6'], ['steelLight', 'c9d3e6'], ['cyan', '7fe3ff'],
+    ['teal', '2f8f9d'], ['tealDark', '1c4f5c'], ['crimsonDark', '5c1427'], ['crimson', 'b3263e'],
+    ['scarlet', 'e2483d'], ['bone', 'd9c9a3'], ['boneDark', '8e7d5f'], ['green', '7ed957'],
+    ['greenDark', '2f6b3a'], ['rock', '4a3f4f'], ['rockLight', '7a6a72'], ['rockDark', '2a2230'],
+  ];
+  const VIDE = '.';                       // pixel transparent
+  const TAILLE_MAX = 512;                 // côté le plus grand accepté
+  const COULEURS_PNG_MAX = 40;            // au-delà, l'import PNG est refusé
+  const FPS_DEFAUT = 8;
+  const HISTORIQUE_MAX = 200;
+  const ZOOM_MAX = 48;
+  const CLE_BROUILLON = 'eoas.editeur-sprites.brouillon.v1';
+  /** Lettres données aux nouvelles couleurs, dans cet ordre. */
+  const LETTRES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*%&$!?<>/:;^~';
+  /** Caractères qui ont un sens dans le fichier : jamais proposés comme lettre. */
+  const LETTRES_INTERDITES = new Set(['.', '#', '=', '-', '@']);
+
+  // =====================================================================
+  //  État
+  // =====================================================================
+
+  /** Le sprite : ce qui est écrit dans le fichier. Une image = tableau de w × h lettres. */
+  const doc = { nom: 'sprite', commentaires: [], palette: [], w: 32, h: 16, images: [], fps: FPS_DEFAUT };
+  /** Les réglages de l'éditeur (gardés dans le brouillon, pas dans le fichier). */
+  const vue = {
+    outil: 'crayon', lettre: '', image: 0, zoom: 12,
+    quadrillage: true, symV: false, symH: false, oignon: false, lecture: true,
+  };
+  let selection = null;        // { x, y, w, h, flottant } ; flottant = pixels soulevés, ou null
+  let geste = null;            // geste en cours au pointeur
+  let survol = null;           // cellule sous la souris
+  let modifie = false;         // vrai tant que le dessin n'est pas enregistré
+  let carteCouleurs = new Map(); // lettre -> [r, v, b]
+  const pileAnnuler = [];
+  const pileRetablir = [];
+
+  // =====================================================================
+  //  Petits outils
+  // =====================================================================
+
+  const $ = (id) => document.getElementById(id);
+  const borne = (v, min, max) => Math.min(max, Math.max(min, v));
+  const imageVide = (w, h) => new Array(w * h).fill(VIDE);
+  const hex2 = (n) => n.toString(16).padStart(2, '0');
+
+  /** Crée un élément. « classe », « texte » et les attributs aria passent aussi par ici. */
+  function creer(balise, props = {}, ...enfants) {
+    const e = document.createElement(balise);
+    for (const [cle, valeur] of Object.entries(props)) {
+      if (cle === 'classe') e.className = valeur;
+      else if (cle === 'texte') e.textContent = valeur;
+      else if (cle in e) e[cle] = valeur;
+      else e.setAttribute(cle, valeur);
+    }
+    e.append(...enfants);
+    return e;
+  }
+
+  /** Nom de fichier propre, sans extension. */
+  function nomPropre(nom) {
+    const n = String(nom || '').replace(/\.(txt|png)$/i, '').replace(/[\\/:*?"<>|]+/g, '-').trim();
+    return n || 'sprite';
+  }
+
+  /** Vrai si le texte posé sur cette couleur doit être noir. */
+  function estClaire(hex) {
+    const [r, v, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    return r * 0.299 + v * 0.587 + b * 0.114 > 140;
+  }
+
+  // =====================================================================
+  //  Format du fichier .txt
+  // =====================================================================
+
+  /**
+   * Lit un fichier de sprite.
+   * Commentaires (« # … »), palette (« X=#rrggbb »), « @fps=8 » facultatif,
+   * puis les grilles, séparées par une ligne « --- ».
+   */
+  function lireTexte(texte) {
+    const commentaires = [];
+    const palette = [];
+    const connues = new Map();
+    const blocs = [[]];
+    let fps = FPS_DEFAUT;
+    let grilleCommencee = false;
+
+    String(texte).replace(/^﻿/, '').split(/\r?\n/).forEach((brute, n) => {
+      const ligne = brute.trimEnd();
+      if (ligne === '') return;
+      if (ligne === '#' || ligne.startsWith('# ')) { commentaires.push(ligne); return; }
+      if (ligne === '---') { if (grilleCommencee) blocs.push([]); return; }
+      const couleur = /^(\S)=#([0-9a-fA-F]{6})$/u.exec(ligne);
+      if (couleur) {
+        const entree = { lettre: couleur[1], hex: '#' + couleur[2] };
+        if (connues.has(entree.lettre)) connues.get(entree.lettre).hex = entree.hex;
+        else { connues.set(entree.lettre, entree); palette.push(entree); }
+        return;
+      }
+      if (!grilleCommencee) {
+        const vitesse = /^@fps=(\d{1,3})$/.exec(ligne);
+        if (vitesse) { fps = borne(parseInt(vitesse[1], 10), 1, 60); return; }
+      }
+      grilleCommencee = true;
+      blocs[blocs.length - 1].push({ cases: Array.from(ligne), numero: n + 1 });
+    });
+
+    const grilles = blocs.filter((b) => b.length > 0);
+    if (grilles.length === 0) throw new Error('Aucune grille de pixels dans ce fichier.');
+    const w = Math.max(...grilles.map((g) => Math.max(...g.map((l) => l.cases.length))));
+    const h = Math.max(...grilles.map((g) => g.length));
+    if (w > TAILLE_MAX || h > TAILLE_MAX) {
+      throw new Error(`Sprite trop grand : ${w} × ${h}. Le maximum est ${TAILLE_MAX} × ${TAILLE_MAX}.`);
+    }
+    // Les lignes courtes et les images plus petites sont complétées par du transparent.
+    const images = grilles.map((grille) => {
+      const img = imageVide(w, h);
+      grille.forEach((ligne, y) => ligne.cases.forEach((c, x) => {
+        if (c === VIDE) return;
+        if (!connues.has(c)) throw new Error(`Ligne ${ligne.numero} : couleur inconnue « ${c} ».`);
+        img[y * w + x] = c;
+      }));
+      return img;
+    });
+    return { commentaires, palette, w, h, images, fps };
+  }
+
+  /** Écrit le fichier. « @fps » et « --- » n'apparaissent que s'il y a plusieurs images. */
+  function ecrireTexte(d) {
+    const lignes = [...d.commentaires];
+    for (const c of d.palette) lignes.push(`${c.lettre}=${c.hex}`);
+    if (d.images.length > 1) lignes.push(`@fps=${d.fps}`);
+    lignes.push('');
+    d.images.forEach((img, i) => {
+      if (i > 0) lignes.push('---');
+      for (let y = 0; y < d.h; y++) lignes.push(img.slice(y * d.w, (y + 1) * d.w).join(''));
+    });
+    return lignes.join('\n') + '\n';
+  }
+
+  // =====================================================================
+  //  Document : chargement, historique, brouillon
+  // =====================================================================
+
+  function reconstruireCarte() {
+    carteCouleurs = new Map(doc.palette.map((c) => [
+      c.lettre, [1, 3, 5].map((i) => parseInt(c.hex.slice(i, i + 2), 16)),
+    ]));
+  }
+
+  /** Remplace tout le sprite et vide l'historique. */
+  function chargerDocument(d, nom) {
+    doc.nom = nomPropre(nom);
+    doc.commentaires = d.commentaires.slice();
+    doc.palette = d.palette.map((c) => ({ ...c }));
+    doc.w = d.w;
+    doc.h = d.h;
+    doc.images = d.images.map((img) => img.slice());
+    doc.fps = d.fps;
+    vue.image = 0;
+    vue.lettre = doc.palette.length ? doc.palette[0].lettre : '';
+    selection = null;
+    geste = null;
+    pileAnnuler.length = 0;
+    pileRetablir.length = 0;
+    majTout();
+  }
+
+  /** Copie de l'état du sprite, pour annuler et rétablir. */
+  function instantane() {
+    return {
+      w: doc.w, h: doc.h, fps: doc.fps,
+      commentaires: doc.commentaires.slice(),
+      palette: doc.palette.map((c) => ({ ...c })),
+      images: doc.images.map((img) => img.join('')),
+      image: vue.image, lettre: vue.lettre,
+    };
+  }
+
+  function restaurer(s) {
+    doc.w = s.w; doc.h = s.h; doc.fps = s.fps;
+    doc.commentaires = s.commentaires.slice();
+    doc.palette = s.palette.map((c) => ({ ...c }));
+    doc.images = s.images.map((t) => Array.from(t));
+    vue.image = borne(s.image, 0, doc.images.length - 1);
+    vue.lettre = doc.palette.some((c) => c.lettre === s.lettre) ? s.lettre : (doc.palette[0] || { lettre: '' }).lettre;
+    selection = null;
+    majTout();
+  }
+
+  /** À appeler juste avant de modifier le sprite. */
+  function empiler(etat = instantane()) {
+    pileAnnuler.push(etat);
+    if (pileAnnuler.length > HISTORIQUE_MAX) pileAnnuler.shift();
+    pileRetablir.length = 0;
+  }
+
+  /** À appeler juste après une modification. */
+  function marquer() {
+    modifie = true;
+    programmerBrouillon();
+    majBoutons();
+  }
+
+  function annuler() {
+    if (geste) return;
+    poserSelection();
+    selection = null;
+    if (pileAnnuler.length === 0) return;
+    pileRetablir.push(instantane());
+    restaurer(pileAnnuler.pop());
+    marquer();
+  }
+
+  function retablir() {
+    if (geste) return;
+    poserSelection();
+    selection = null;
+    if (pileRetablir.length === 0) return;
+    pileAnnuler.push(instantane());
+    restaurer(pileRetablir.pop());
+    marquer();
+  }
+
+  /** Le sprite tel qu'on le voit : la sélection soulevée est reposée dans la copie. */
+  function documentVisible() {
+    return { ...doc, images: doc.images.map((img, i) => (i === vue.image ? imageVisible() : img)) };
+  }
+
+  let minuterieBrouillon = 0;
+  let brouillonGarde = null;   // null : pas encore essayé ; true ou false ensuite
+
+  function programmerBrouillon() {
+    clearTimeout(minuterieBrouillon);
+    minuterieBrouillon = setTimeout(garderBrouillon, 400);
+  }
+
+  /** Garde le brouillon dans le navigateur. Sans stockage, l'éditeur marche quand même. */
+  function garderBrouillon() {
+    clearTimeout(minuterieBrouillon);
+    try {
+      localStorage.setItem(CLE_BROUILLON, JSON.stringify({
+        texte: ecrireTexte(documentVisible()), nom: doc.nom, fps: doc.fps, modifie, vue,
+      }));
+      brouillonGarde = true;
+    } catch (e) {
+      brouillonGarde = false;
+    }
+    majEtat();
+  }
+
+  function restaurerBrouillon() {
+    try {
+      const brut = localStorage.getItem(CLE_BROUILLON);
+      if (!brut) return false;
+      const b = JSON.parse(brut);
+      const d = lireTexte(b.texte);
+      if (Number.isFinite(b.fps)) d.fps = borne(Math.round(b.fps), 1, 60);
+      chargerDocument(d, b.nom);
+      const v = b.vue || {};
+      for (const cle of ['quadrillage', 'symV', 'symH', 'oignon', 'lecture']) {
+        if (typeof v[cle] === 'boolean') vue[cle] = v[cle];
+      }
+      if (['crayon', 'gomme', 'pot', 'pipette', 'selection'].includes(v.outil)) vue.outil = v.outil;
+      if (Number.isInteger(v.image)) vue.image = borne(v.image, 0, doc.images.length - 1);
+      if (doc.palette.some((c) => c.lettre === v.lettre)) vue.lettre = v.lettre;
+      if (Number.isInteger(v.zoom)) vue.zoom = borne(v.zoom, 1, ZOOM_MAX);
+      modifie = !!b.modifie;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // =====================================================================
+  //  Pixels : dessin, remplissage, miroir, décalage, taille
+  // =====================================================================
+
+  const imageCourante = () => doc.images[vue.image];
+
+  /** Les points à peindre pour un clic, avec les symétries en direct. */
+  function pointsSymetriques(x, y) {
+    const pts = [[x, y]];
+    if (vue.symH) pts.push([doc.w - 1 - x, y]);
+    if (vue.symV) pts.push([x, doc.h - 1 - y]);
+    if (vue.symH && vue.symV) pts.push([doc.w - 1 - x, doc.h - 1 - y]);
+    return pts;
+  }
+
+  function peindre(x, y, lettre) {
+    if (x < 0 || y < 0 || x >= doc.w || y >= doc.h) return;
+    const img = imageCourante();
+    for (const [px, py] of pointsSymetriques(x, y)) img[py * doc.w + px] = lettre;
+  }
+
+  /** Trait sans trou entre deux cellules (algorithme de Bresenham). */
+  function tracerLigne(x0, y0, x1, y1, lettre) {
+    const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    for (let garde = 0; garde < 4 * TAILLE_MAX; garde++) {
+      peindre(x0, y0, lettre);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  }
+
+  /** Pot de peinture : remplit la zone de même couleur qui touche (x, y). */
+  function remplir(x, y, lettre) {
+    const img = imageCourante();
+    const { w, h } = doc;
+    const cible = img[y * w + x];
+    if (cible === lettre) return;
+    const pile = [y * w + x];
+    while (pile.length) {
+      const i = pile.pop();
+      if (img[i] !== cible) continue;
+      img[i] = lettre;
+      const cx = i % w;
+      if (cx > 0) pile.push(i - 1);
+      if (cx < w - 1) pile.push(i + 1);
+      if (i >= w) pile.push(i - w);
+      if (i < w * (h - 1)) pile.push(i + w);
+    }
+  }
+
+  /** Renvoie une copie retournée. horizontal = la gauche passe à droite. */
+  function retourner(img, w, h, horizontal) {
+    const out = new Array(w * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        out[y * w + x] = horizontal ? img[y * w + (w - 1 - x)] : img[(h - 1 - y) * w + x];
+      }
+    }
+    return out;
+  }
+
+  /** Miroir de la sélection s'il y en a une, sinon de l'image entière. */
+  function miroir(horizontal) {
+    if (selection) {
+      if (!selection.flottant) souleverSelection();
+      selection.flottant = retourner(selection.flottant, selection.w, selection.h, horizontal);
+    } else {
+      empiler();
+      doc.images[vue.image] = retourner(imageCourante(), doc.w, doc.h, horizontal);
+    }
+    marquer();
+    demanderDessin();
+  }
+
+  /** Décale d'un pixel : la sélection s'il y en a une, sinon l'image (ce qui sort revient de l'autre côté). */
+  function decaler(dx, dy) {
+    if (selection) {
+      if (!selection.flottant) souleverSelection();
+      selection.x += dx;
+      selection.y += dy;
+    } else {
+      empiler();
+      const { w, h } = doc;
+      const img = imageCourante();
+      const out = new Array(w * h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          out[((y + dy + h) % h) * w + ((x + dx + w) % w)] = img[y * w + x];
+        }
+      }
+      doc.images[vue.image] = out;
+    }
+    marquer();
+    demanderDessin();
+  }
+
+  /** Change la taille de toutes les images. Le dessin reste ancré en haut à gauche. */
+  function changerTaille(nw, nh) {
+    if (nw === doc.w && nh === doc.h) return;
+    poserSelection();
+    selection = null;
+    empiler();
+    doc.images = doc.images.map((img) => {
+      const out = imageVide(nw, nh);
+      for (let y = 0; y < Math.min(nh, doc.h); y++) {
+        for (let x = 0; x < Math.min(nw, doc.w); x++) out[y * nw + x] = img[y * doc.w + x];
+      }
+      return out;
+    });
+    doc.w = nw;
+    doc.h = nh;
+    marquer();
+    majTout();
+    ajusterZoom();
+  }
+
+  // =====================================================================
+  //  Sélection rectangulaire
+  // =====================================================================
+
+  /** Recopie les pixels soulevés dans une image. Le transparent ne recouvre rien. */
+  function deposer(img, s) {
+    for (let j = 0; j < s.h; j++) {
+      for (let i = 0; i < s.w; i++) {
+        const c = s.flottant[j * s.w + i];
+        const x = s.x + i, y = s.y + j;
+        if (c !== VIDE && x >= 0 && y >= 0 && x < doc.w && y < doc.h) img[y * doc.w + x] = c;
+      }
+    }
+  }
+
+  /** L'image courante avec la sélection soulevée par-dessus. */
+  function imageVisible() {
+    const img = imageCourante();
+    if (!selection || !selection.flottant) return img;
+    const copie = img.slice();
+    deposer(copie, selection);
+    return copie;
+  }
+
+  /** Détache les pixels de la sélection pour pouvoir les déplacer. */
+  function souleverSelection() {
+    empiler();
+    const img = imageCourante();
+    const s = selection;
+    s.flottant = new Array(s.w * s.h);
+    for (let j = 0; j < s.h; j++) {
+      for (let i = 0; i < s.w; i++) {
+        const k = (s.y + j) * doc.w + (s.x + i);
+        s.flottant[j * s.w + i] = img[k];
+        img[k] = VIDE;
+      }
+    }
+  }
+
+  /** Repose les pixels soulevés dans l'image. */
+  function poserSelection() {
+    if (!selection || !selection.flottant) return;
+    deposer(imageCourante(), selection);
+    selection.flottant = null;
+    // Le cadre est ramené à ce qui reste dans le canevas.
+    const x0 = Math.max(0, selection.x), y0 = Math.max(0, selection.y);
+    const x1 = Math.min(doc.w, selection.x + selection.w), y1 = Math.min(doc.h, selection.y + selection.h);
+    selection = x1 > x0 && y1 > y0 ? { x: x0, y: y0, w: x1 - x0, h: y1 - y0, flottant: null } : null;
+    marquer();
+  }
+
+  function lacherSelection() {
+    poserSelection();
+    selection = null;
+    demanderDessin();
+  }
+
+  /** Efface le contenu de la sélection. */
+  function effacerSelection() {
+    if (!selection) return;
+    if (selection.flottant) {
+      selection.flottant = null;           // les pixels soulevés sont perdus, l'historique a déjà l'état d'avant
+    } else {
+      empiler();
+      const img = imageCourante();
+      for (let j = 0; j < selection.h; j++) {
+        for (let i = 0; i < selection.w; i++) img[(selection.y + j) * doc.w + selection.x + i] = VIDE;
+      }
+    }
+    selection = null;
+    marquer();
+    demanderDessin();
+  }
+
+  const dansSelection = (x, y) => selection
+    && x >= selection.x && y >= selection.y
+    && x < selection.x + selection.w && y < selection.y + selection.h;
+
+  // =====================================================================
+  //  Palette
+  // =====================================================================
+
+  /** Première lettre libre. « preferee » sert pour les couleurs du jeu (cyan : C). */
+  function lettreLibre(preferee) {
+    const prises = new Set(doc.palette.map((c) => c.lettre));
+    const candidates = [];
+    if (preferee) candidates.push(preferee[0].toUpperCase(), preferee[0].toLowerCase());
+    candidates.push(...LETTRES);
+    return candidates.find((l) => !prises.has(l) && !LETTRES_INTERDITES.has(l)) || null;
+  }
+
+  const chercherCouleur = (hex) => doc.palette.find((c) => c.hex.toLowerCase() === hex.toLowerCase());
+
+  /** Ajoute une couleur avec une lettre libre et la choisit. */
+  function ajouterCouleur(hex, preferee) {
+    const lettre = lettreLibre(preferee);
+    if (!lettre) { annoncer('Plus de lettre libre pour une nouvelle couleur.', true); return null; }
+    empiler();
+    doc.palette.push({ lettre, hex });
+    vue.lettre = lettre;
+    if (vue.outil === 'gomme' || vue.outil === 'pipette') vue.outil = 'crayon';
+    marquer();
+    majTout();
+    return lettre;
+  }
+
+  function choisirCouleur(lettre) {
+    vue.lettre = lettre;
+    if (vue.outil === 'gomme' || vue.outil === 'pipette') choisirOutil('crayon');
+    majPalette();
+    programmerBrouillon();
+  }
+
+  const couleurChoisie = () => doc.palette.find((c) => c.lettre === vue.lettre) || null;
+
+  /** Nombre de pixels qui utilisent une lettre, toutes images confondues. */
+  function compterPixels(lettre) {
+    let n = 0;
+    for (const img of documentVisible().images) for (const c of img) if (c === lettre) n++;
+    return n;
+  }
+
+  let couleurEnEdition = false;   // une seule entrée d'historique par réglage au sélecteur
+
+  function changerHex(hex, depuisSelecteur) {
+    const c = couleurChoisie();
+    if (!c || c.hex.toLowerCase() === hex.toLowerCase()) return;
+    if (!(depuisSelecteur && couleurEnEdition)) empiler();
+    couleurEnEdition = depuisSelecteur;
+    c.hex = hex;
+    marquer();
+    reconstruireCarte();
+    majPalette();
+    majListeImages();
+    demanderDessin();
+  }
+
+  function changerLettre(nouvelle) {
+    const c = couleurChoisie();
+    if (!c || nouvelle === c.lettre) return;
+    if (Array.from(nouvelle).length !== 1 || /\s/.test(nouvelle) || LETTRES_INTERDITES.has(nouvelle)) {
+      annoncer('Lettre refusée. Il faut un seul caractère, sauf . # = - @ et l\'espace.', true);
+    } else if (doc.palette.some((p) => p.lettre === nouvelle)) {
+      annoncer(`La lettre « ${nouvelle} » est déjà prise.`, true);
+    } else {
+      poserSelection();
+      empiler();
+      const ancienne = c.lettre;
+      doc.images = doc.images.map((img) => img.map((p) => (p === ancienne ? nouvelle : p)));
+      c.lettre = nouvelle;
+      vue.lettre = nouvelle;
+      marquer();
+    }
+    majTout();
+  }
+
+  async function supprimerCouleur() {
+    const c = couleurChoisie();
+    if (!c) return;
+    const n = compterPixels(c.lettre);
+    if (n > 0) {
+      const ok = await confirmer('Supprimer la couleur',
+        `La couleur « ${c.lettre} » sert à ${n} pixel${n > 1 ? 's' : ''}. Ils deviendront transparents.`, 'Supprimer');
+      if (!ok) return;
+    }
+    poserSelection();
+    empiler();
+    const rang = doc.palette.indexOf(c);
+    doc.palette.splice(rang, 1);
+    doc.images = doc.images.map((img) => img.map((p) => (p === c.lettre ? VIDE : p)));
+    const voisine = doc.palette[Math.min(rang, doc.palette.length - 1)];
+    vue.lettre = voisine ? voisine.lettre : '';
+    marquer();
+    majTout();
+  }
+
+  /** Retire les couleurs qui ne servent à aucun pixel. */
+  function nettoyerPalette() {
+    const utiles = new Set();
+    for (const img of documentVisible().images) for (const c of img) utiles.add(c);
+    const inutiles = doc.palette.filter((c) => !utiles.has(c.lettre));
+    if (inutiles.length === 0) { annoncer('Toutes les couleurs servent.'); return; }
+    empiler();
+    doc.palette = doc.palette.filter((c) => utiles.has(c.lettre));
+    if (!couleurChoisie()) vue.lettre = doc.palette.length ? doc.palette[0].lettre : '';
+    marquer();
+    majTout();
+    annoncer(`${inutiles.length} couleur${inutiles.length > 1 ? 's retirées' : ' retirée'}.`);
+  }
+
+  // =====================================================================
+  //  Images de l'animation
+  // =====================================================================
+
+  function choisirImage(i) {
+    if (i === vue.image) return;
+    poserSelection();
+    selection = null;
+    vue.image = borne(i, 0, doc.images.length - 1);
+    programmerBrouillon();
+    majListeImages();
+    demanderDessin();
+  }
+
+  /** Ajoute une image après l'image courante : vide, ou copie de celle-ci. */
+  function ajouterImage(copie) {
+    poserSelection();
+    selection = null;
+    empiler();
+    const img = copie ? imageCourante().slice() : imageVide(doc.w, doc.h);
+    doc.images.splice(vue.image + 1, 0, img);
+    vue.image += 1;
+    marquer();
+    majListeImages();
+    demanderDessin();
+  }
+
+  function supprimerImage() {
+    if (doc.images.length < 2) return;
+    selection = null;
+    empiler();
+    doc.images.splice(vue.image, 1);
+    vue.image = Math.min(vue.image, doc.images.length - 1);
+    marquer();
+    majListeImages();
+    demanderDessin();
+  }
+
+  /** Change l'ordre : l'image courante échange sa place avec sa voisine. */
+  function deplacerImage(sens) {
+    const cible = vue.image + sens;
+    if (cible < 0 || cible >= doc.images.length) return;
+    poserSelection();
+    selection = null;
+    empiler();
+    const [img] = doc.images.splice(vue.image, 1);
+    doc.images.splice(cible, 0, img);
+    vue.image = cible;
+    marquer();
+    majListeImages();
+    demanderDessin();
+  }
+
+  // =====================================================================
+  //  Rendu : grille de dessin, vignettes, aperçus
+  // =====================================================================
+
+  const canevas = $('canevas');
+  const ctx = canevas.getContext('2d');
+  const tampon = document.createElement('canvas');          // l'image à la taille réelle
+  const ctxTampon = tampon.getContext('2d');
+  const motifs = new Map();                                 // damiers déjà fabriqués, par zoom
+  const apercus = [];                                       // les six canevas d'aperçu
+  let indexApercu = 0;                                      // image montrée pendant la lecture
+  let dessinDemande = false;
+
+  /** Transforme une image de lettres en pixels. */
+  function versImageData(img) {
+    const data = new ImageData(doc.w, doc.h);
+    const d = data.data;
+    for (let i = 0; i < img.length; i++) {
+      const rvb = img[i] === VIDE ? null : carteCouleurs.get(img[i]);
+      if (!rvb) continue;
+      d[i * 4] = rvb[0]; d[i * 4 + 1] = rvb[1]; d[i * 4 + 2] = rvb[2]; d[i * 4 + 3] = 255;
+    }
+    return data;
+  }
+
+  /** Damier : une case par pixel du sprite. */
+  function motifDamier(z) {
+    if (!motifs.has(z)) {
+      const c = creer('canvas', { width: 2 * z, height: 2 * z });
+      const g = c.getContext('2d');
+      g.fillStyle = '#55555c';
+      g.fillRect(0, 0, 2 * z, 2 * z);
+      g.fillStyle = '#48484f';
+      g.fillRect(z, 0, z, z);
+      g.fillRect(0, z, z, z);
+      motifs.set(z, ctx.createPattern(c, 'repeat'));
+    }
+    return motifs.get(z);
+  }
+
+  function dessinerAgrandi(img, alpha) {
+    if (tampon.width !== doc.w || tampon.height !== doc.h) { tampon.width = doc.w; tampon.height = doc.h; }
+    ctxTampon.putImageData(versImageData(img), 0, 0);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(tampon, 0, 0, canevas.width, canevas.height);
+    ctx.globalAlpha = 1;
+  }
+
+  function dessinerCanevas() {
+    const z = vue.zoom;
+    const W = doc.w * z, H = doc.h * z;
+    if (canevas.width !== W || canevas.height !== H) { canevas.width = W; canevas.height = H; }
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = motifDamier(z);
+    ctx.fillRect(0, 0, W, H);
+
+    // Pelure d'oignon : l'image d'avant (la dernière pour la première, l'animation boucle).
+    if (vue.oignon && doc.images.length > 1) {
+      const avant = (vue.image - 1 + doc.images.length) % doc.images.length;
+      dessinerAgrandi(doc.images[avant], 0.33);
+    }
+    dessinerAgrandi(imageVisible(), 1);
+
+    if (vue.quadrillage && z >= 4) {
+      ctx.fillStyle = 'rgba(0, 0, 0, .3)';
+      for (let x = 1; x < doc.w; x++) ctx.fillRect(x * z, 0, 1, H);
+      for (let y = 1; y < doc.h; y++) ctx.fillRect(0, y * z, W, 1);
+    }
+    // Axes des symétries en direct.
+    ctx.fillStyle = 'rgba(245, 196, 81, .85)';
+    if (vue.symH) ctx.fillRect(Math.round(W / 2) - 1, 0, 2, H);
+    if (vue.symV) ctx.fillRect(0, Math.round(H / 2) - 1, W, 2);
+
+    if (selection) {
+      const { x, y, w, h } = selection;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#000';
+      ctx.strokeRect(x * z + 0.5, y * z + 0.5, w * z - 1, h * z - 1);
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#f5c451';
+      ctx.strokeRect(x * z + 0.5, y * z + 0.5, w * z - 1, h * z - 1);
+      ctx.setLineDash([]);
+    }
+    if (survol && vue.outil !== 'selection' && z >= 3) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, .85)';
+      for (const [px, py] of pointsSymetriques(survol.x, survol.y)) {
+        ctx.strokeRect(px * z + 0.5, py * z + 0.5, z - 1, z - 1);
+      }
+    }
+  }
+
+  /** Les aperçus montrent l'animation pendant la lecture, sinon l'image courante. */
+  function dessinerApercus() {
+    const n = doc.images.length;
+    const i = vue.lecture && n > 1 ? indexApercu % n : vue.image;
+    const data = versImageData(i === vue.image ? imageVisible() : doc.images[i]);
+    for (const c of apercus) c.getContext('2d').putImageData(data, 0, 0);
+  }
+
+  function dessinerVignetteCourante() {
+    const c = $('liste-images').children[vue.image];
+    if (c) c.querySelector('canvas').getContext('2d').putImageData(versImageData(imageVisible()), 0, 0);
+  }
+
+  /** Redessine au prochain rafraîchissement de l'écran (plusieurs demandes n'en font qu'une). */
+  function demanderDessin() {
+    if (dessinDemande) return;
+    dessinDemande = true;
+    requestAnimationFrame(() => {
+      dessinDemande = false;
+      dessinerCanevas();
+      dessinerVignetteCourante();
+      dessinerApercus();
+      majEtat();
+    });
+  }
+
+  /** Fabrique les six aperçus : ×1, ×2 et ×4, sur fond sombre puis clair. */
+  function creerApercus() {
+    for (const id of ['apercu-sombre', 'apercu-clair']) {
+      for (const echelle of [1, 2, 4]) {
+        const c = creer('canvas');
+        c.dataset.echelle = echelle;
+        apercus.push(c);
+        $(id).append(creer('figure', {}, c, creer('figcaption', { texte: `×${echelle}` })));
+      }
+    }
+  }
+
+  function majTailleApercus() {
+    for (const c of apercus) {
+      c.width = doc.w;
+      c.height = doc.h;
+      c.style.width = `${doc.w * c.dataset.echelle}px`;
+      c.style.height = `${doc.h * c.dataset.echelle}px`;
+    }
+  }
+
+  /** Battement de l'animation des aperçus, à la vitesse du sprite. */
+  function battre() {
+    if (vue.lecture && doc.images.length > 1) {
+      indexApercu = (indexApercu + 1) % doc.images.length;
+      dessinerApercus();
+    }
+    setTimeout(battre, 1000 / borne(doc.fps, 1, 60));
+  }
+
+  // =====================================================================
+  //  Mise à jour de l'interface
+  // =====================================================================
+
+  function majPalette() {
+    const nuancier = $('nuancier');
+    nuancier.replaceChildren(...doc.palette.map((c) => {
+      const b = creer('button', {
+        type: 'button', classe: 'pastille' + (c.lettre === vue.lettre ? ' actif' : ''),
+        texte: c.lettre, title: `${c.lettre} · ${c.hex}`,
+      });
+      b.style.background = c.hex;
+      b.style.color = estClaire(c.hex) ? '#000' : '#fff';
+      b.setAttribute('aria-pressed', String(c.lettre === vue.lettre));
+      b.addEventListener('click', () => choisirCouleur(c.lettre));
+      return b;
+    }));
+    const c = couleurChoisie();
+    $('palette-vide').hidden = doc.palette.length > 0;
+    $('edition').hidden = !c;
+    $('btn-couleur-supprimer').disabled = !c;
+    $('btn-couleur-nettoyer').disabled = doc.palette.length === 0;
+    if (c) {
+      $('couleur-lettre').value = c.lettre;
+      $('couleur-hex').value = c.hex.toLowerCase();
+      if (document.activeElement !== $('couleur-choix')) $('couleur-choix').value = c.hex.toLowerCase();
+    }
+  }
+
+  function majListeImages() {
+    const liste = $('liste-images');
+    // Les vignettes tiennent dans 70 × 40 px, à une échelle entière si possible.
+    let e = Math.min(70 / doc.w, 40 / doc.h);
+    if (e >= 1) e = Math.floor(e);
+    liste.replaceChildren(...doc.images.map((img, i) => {
+      const c = creer('canvas', { width: doc.w, height: doc.h });
+      c.style.width = `${Math.max(1, Math.round(doc.w * e))}px`;
+      c.style.height = `${Math.max(1, Math.round(doc.h * e))}px`;
+      c.getContext('2d').putImageData(versImageData(i === vue.image ? imageVisible() : img), 0, 0);
+      const b = creer('button', {
+        type: 'button', classe: 'vignette' + (i === vue.image ? ' actif' : ''), title: `Image ${i + 1}`,
+      }, c, creer('span', { texte: String(i + 1) }));
+      b.setAttribute('aria-pressed', String(i === vue.image));
+      b.addEventListener('click', () => choisirImage(i));
+      return b;
+    }));
+    const active = liste.children[vue.image];
+    if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    majBoutons();
+  }
+
+  function majBoutons() {
+    const n = doc.images.length;
+    $('btn-annuler').disabled = pileAnnuler.length === 0;
+    $('btn-retablir').disabled = pileRetablir.length === 0;
+    $('btn-image-supprimer').disabled = n < 2;
+    $('btn-image-gauche').disabled = vue.image === 0;
+    $('btn-image-droite').disabled = vue.image >= n - 1;
+    $('btn-lecture').disabled = n < 2;
+    $('btn-lecture').textContent = vue.lecture && n > 1 ? 'Pause' : 'Lecture';
+    $('btn-lecture').classList.toggle('actif', vue.lecture && n > 1);
+    for (const b of $('outils').children) b.classList.toggle('actif', b.dataset.outil === vue.outil);
+  }
+
+  function majChamps() {
+    if (document.activeElement !== $('nom')) $('nom').value = doc.nom;
+    $('vitesse').value = doc.fps;
+    $('sym-v').checked = vue.symV;
+    $('sym-h').checked = vue.symH;
+    $('quadrillage').checked = vue.quadrillage;
+    $('oignon').checked = vue.oignon;
+    $('zoom-valeur').textContent = `×${vue.zoom}`;
+  }
+
+  function majEtat() {
+    let texte = `${doc.w} × ${doc.h} px · image ${vue.image + 1} sur ${doc.images.length}`;
+    if (selection) texte += ` · sélection ${selection.w} × ${selection.h}`;
+    if (survol) {
+      const lettre = imageVisible()[survol.y * doc.w + survol.x];
+      const c = doc.palette.find((p) => p.lettre === lettre);
+      texte += ` · x ${survol.x}, y ${survol.y} · ${c ? `${c.lettre} ${c.hex}` : 'transparent'}`;
+    }
+    $('etat-gauche').textContent = texte;
+    $('etat-droite').textContent = (modifie ? 'Non enregistré' : 'Enregistré')
+      + (brouillonGarde === false ? ' · brouillon non gardé (stockage indisponible)' : brouillonGarde ? ' · brouillon gardé' : '');
+  }
+
+  function majTout() {
+    reconstruireCarte();
+    majTailleApercus();
+    majPalette();
+    majListeImages();
+    majChamps();
+    demanderDessin();
+  }
+
+  let minuterieMessage = 0;
+  /** Message court en bas de l'écran. */
+  function annoncer(texte, erreur = false) {
+    const m = $('message');
+    m.textContent = texte;
+    m.classList.toggle('erreur', erreur);
+    m.hidden = false;
+    clearTimeout(minuterieMessage);
+    minuterieMessage = setTimeout(() => { m.hidden = true; }, erreur ? 7000 : 3500);
+  }
+
+  // =====================================================================
+  //  Outils, zoom
+  // =====================================================================
+
+  function choisirOutil(outil) {
+    if (outil !== 'selection') { poserSelection(); selection = null; }
+    vue.outil = outil;
+    canevas.style.cursor = outil === 'selection' ? 'default' : 'crosshair';
+    programmerBrouillon();
+    majBoutons();
+    demanderDessin();
+  }
+
+  function reglerZoom(z) {
+    vue.zoom = borne(Math.round(z), 1, ZOOM_MAX);
+    $('zoom-valeur').textContent = `×${vue.zoom}`;
+    programmerBrouillon();
+    demanderDessin();
+  }
+
+  /** Choisit le plus grand zoom qui montre tout le sprite. */
+  function ajusterZoom() {
+    const r = $('cadre').getBoundingClientRect();
+    reglerZoom(Math.floor(Math.min((r.width - 28) / doc.w, (r.height - 28) / doc.h)) || 1);
+  }
+
+  // =====================================================================
+  //  Gestes sur la grille (souris, doigt, stylet)
+  // =====================================================================
+
+  /** Cellule du sprite sous le pointeur (peut être hors du canevas pendant un glissé). */
+  function cellule(e) {
+    const r = canevas.getBoundingClientRect();
+    return {
+      x: Math.floor((e.clientX - r.left) * doc.w / r.width),
+      y: Math.floor((e.clientY - r.top) * doc.h / r.height),
+    };
+  }
+  const dansCanevas = (p) => p.x >= 0 && p.y >= 0 && p.x < doc.w && p.y < doc.h;
+
+  canevas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  canevas.addEventListener('pointerdown', (e) => {
+    if (geste || (e.button !== 0 && e.button !== 2)) return;
+    e.preventDefault();
+    try { canevas.setPointerCapture(e.pointerId); } catch (err) { /* pointeur déjà relâché */ }
+    const p = cellule(e);
+    if (!dansCanevas(p)) return;
+    const gommer = vue.outil === 'gomme' || (vue.outil === 'crayon' && e.button === 2);
+
+    if (vue.outil === 'crayon' || vue.outil === 'gomme') {
+      if (!gommer && !vue.lettre) { annoncer('Ajouter d\'abord une couleur à la palette.', true); return; }
+      geste = { type: 'trait', id: e.pointerId, lettre: gommer ? VIDE : vue.lettre, x: p.x, y: p.y, avant: instantane() };
+      peindre(p.x, p.y, geste.lettre);
+    } else if (vue.outil === 'pot') {
+      if (!vue.lettre) { annoncer('Ajouter d\'abord une couleur à la palette.', true); return; }
+      const avant = instantane();
+      for (const [px, py] of pointsSymetriques(p.x, p.y)) remplir(px, py, vue.lettre);
+      if (avant.images[vue.image] !== imageCourante().join('')) { empiler(avant); marquer(); }
+    } else if (vue.outil === 'pipette') {
+      const lettre = imageVisible()[p.y * doc.w + p.x];
+      if (lettre === VIDE) choisirOutil('gomme');
+      else { vue.lettre = lettre; choisirOutil('crayon'); majPalette(); }
+    } else if (vue.outil === 'selection') {
+      if (dansSelection(p.x, p.y)) {
+        if (!selection.flottant) { souleverSelection(); marquer(); }
+        geste = { type: 'deplacement', id: e.pointerId, px: p.x, py: p.y, sx: selection.x, sy: selection.y };
+      } else {
+        poserSelection();
+        selection = null;
+        geste = { type: 'cadre', id: e.pointerId, x: p.x, y: p.y };
+      }
+    }
+    demanderDessin();
+  });
+
+  canevas.addEventListener('pointermove', (e) => {
+    const p = cellule(e);
+    const avantSurvol = survol;
+    survol = e.pointerType === 'mouse' && dansCanevas(p) ? p : null;
+    if (geste && geste.id === e.pointerId) {
+      if (geste.type === 'trait') {
+        if (p.x !== geste.x || p.y !== geste.y) {
+          tracerLigne(geste.x, geste.y, p.x, p.y, geste.lettre);
+          geste.x = p.x;
+          geste.y = p.y;
+        }
+      } else if (geste.type === 'cadre') {
+        const x1 = borne(p.x, 0, doc.w - 1), y1 = borne(p.y, 0, doc.h - 1);
+        if (selection || x1 !== geste.x || y1 !== geste.y) {
+          selection = {
+            x: Math.min(geste.x, x1), y: Math.min(geste.y, y1),
+            w: Math.abs(x1 - geste.x) + 1, h: Math.abs(y1 - geste.y) + 1, flottant: null,
+          };
+        }
+      } else if (geste.type === 'deplacement') {
+        selection.x = geste.sx + p.x - geste.px;
+        selection.y = geste.sy + p.y - geste.py;
+      }
+      demanderDessin();
+    } else if (!avantSurvol !== !survol || (survol && (survol.x !== avantSurvol.x || survol.y !== avantSurvol.y))) {
+      demanderDessin();
+    }
+  });
+
+  function finGeste(e) {
+    if (!geste || geste.id !== e.pointerId) return;
+    if (geste.type === 'trait') {
+      // Le trait n'entre dans l'historique que s'il a changé quelque chose.
+      if (geste.avant.images[vue.image] !== imageCourante().join('')) { empiler(geste.avant); marquer(); }
+    } else if (geste.type === 'deplacement') {
+      marquer();
+    }
+    geste = null;
+    demanderDessin();
+  }
+  canevas.addEventListener('pointerup', finGeste);
+  canevas.addEventListener('pointercancel', finGeste);
+  canevas.addEventListener('pointerleave', () => { if (survol) { survol = null; demanderDessin(); } });
+
+  // Ctrl + molette : zoom.
+  $('cadre').addEventListener('wheel', (e) => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    reglerZoom(vue.zoom + (e.deltaY < 0 ? 1 : -1));
+  }, { passive: false });
+
+  // =====================================================================
+  //  Boîte de dialogue
+  // =====================================================================
+
+  let fermerBoite = null;
+
+  /**
+   * Ouvre une boîte. « corps » est un texte ou un élément.
+   * La promesse donne la valeur du bouton choisi, ou null (Échap).
+   */
+  function ouvrirBoite(titre, corps, boutons) {
+    if (fermerBoite) fermerBoite(null);
+    return new Promise((resoudre) => {
+      const avant = document.activeElement;
+      $('boite-titre').textContent = titre;
+      $('boite-corps').replaceChildren(typeof corps === 'string' ? creer('p', { texte: corps }) : corps);
+      let principal = null;
+      fermerBoite = (valeur) => {
+        fermerBoite = null;
+        $('voile').hidden = true;
+        if (avant && avant.focus) avant.focus();
+        resoudre(valeur);
+      };
+      $('boite-boutons').replaceChildren(...boutons.map((b) => {
+        const el = creer('button', { type: 'button', texte: b.texte, classe: b.principal ? 'principal' : '' });
+        el.addEventListener('click', () => fermerBoite && fermerBoite(b.valeur));
+        if (b.principal) principal = { el, valeur: b.valeur };
+        return el;
+      }));
+      $('voile').dataset.principal = '';
+      $('voile').onkeydown = (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); fermerBoite(null); }
+        else if (e.key === 'Enter' && principal && !['TEXTAREA', 'BUTTON'].includes(e.target.tagName)) {
+          e.preventDefault();
+          fermerBoite(principal.valeur);
+        }
+      };
+      $('voile').hidden = false;
+      const champ = $('boite-corps').querySelector('input, textarea');
+      if (champ) { champ.focus(); if (champ.select) champ.select(); }
+      else if (principal) principal.el.focus();
+    });
+  }
+
+  const confirmer = (titre, texte, oui = 'Continuer') => ouvrirBoite(titre, texte, [
+    { texte: 'Annuler', valeur: false },
+    { texte: oui, valeur: true, principal: true },
+  ]);
+
+  /** Demande avant de remplacer un dessin non enregistré. */
+  async function peutRemplacer() {
+    if (!modifie) return true;
+    return (await confirmer('Dessin non enregistré', 'Le dessin en cours n\'est pas enregistré. Il sera remplacé.')) === true;
+  }
+
+  /** Deux champs « largeur » et « hauteur », pour les boîtes Nouveau et Taille. */
+  function champsTaille(w, h) {
+    const largeur = creer('input', { type: 'number', min: 1, max: TAILLE_MAX, step: 1, value: w });
+    const hauteur = creer('input', { type: 'number', min: 1, max: TAILLE_MAX, step: 1, value: h });
+    const bloc = creer('div', { classe: 'champs' },
+      creer('label', {}, 'Largeur ', largeur), creer('label', {}, 'Hauteur ', hauteur));
+    const lire = () => {
+      const nw = parseInt(largeur.value, 10), nh = parseInt(hauteur.value, 10);
+      if (!(nw >= 1 && nw <= TAILLE_MAX && nh >= 1 && nh <= TAILLE_MAX)) {
+        annoncer(`La taille va de 1 à ${TAILLE_MAX} pixels.`, true);
+        return null;
+      }
+      return { w: nw, h: nh };
+    };
+    return { bloc, lire };
+  }
+
+  // =====================================================================
+  //  Fichiers : nouveau, ouvrir, enregistrer, PNG
+  // =====================================================================
+
+  function telecharger(blob, nom) {
+    const url = URL.createObjectURL(blob);
+    const lien = creer('a', { href: url, download: nom });
+    document.body.append(lien);
+    lien.click();
+    lien.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  async function nouveau() {
+    const { bloc, lire } = champsTaille(doc.w, doc.h);
+    const garder = creer('input', { type: 'checkbox', checked: true });
+    const corps = creer('div', {}, bloc,
+      creer('label', { classe: 'option' }, garder, ' Garder la palette actuelle'),
+      creer('p', { classe: 'aide', texte: modifie ? 'Le dessin en cours n\'est pas enregistré. Il sera remplacé.' : 'Taille en pixels du jeu.' }));
+    if (!(await ouvrirBoite('Nouveau sprite', corps, [
+      { texte: 'Annuler', valeur: false }, { texte: 'Créer', valeur: true, principal: true },
+    ]))) return;
+    const taille = lire();
+    if (!taille) return;
+    chargerDocument({
+      commentaires: [], palette: garder.checked ? doc.palette : [],
+      w: taille.w, h: taille.h, images: [imageVide(taille.w, taille.h)], fps: FPS_DEFAUT,
+    }, 'sprite');
+    modifie = false;
+    ajusterZoom();
+    garderBrouillon();
+  }
+
+  /** Charge le texte d'un fichier .txt. */
+  async function ouvrirTexte(texte, nom) {
+    let d;
+    try {
+      d = lireTexte(texte);
+    } catch (e) {
+      annoncer(`${nom} : ${e.message}`, true);
+      return;
+    }
+    if (!(await peutRemplacer())) return;
+    chargerDocument(d, nom);
+    modifie = false;
+    ajusterZoom();
+    garderBrouillon();
+    annoncer(`${nom} : ${d.w} × ${d.h}, ${d.palette.length} couleur${d.palette.length > 1 ? 's' : ''}, ${d.images.length} image${d.images.length > 1 ? 's' : ''}.`);
+  }
+
+  async function ouvrirFichier(fichier) {
+    if (/\.png$/i.test(fichier.name) || fichier.type === 'image/png') return importerPng(fichier);
+    let texte;
+    try {
+      texte = await fichier.text();
+    } catch (e) {
+      annoncer(`${fichier.name} : lecture impossible.`, true);
+      return undefined;
+    }
+    return ouvrirTexte(texte, fichier.name);
+  }
+
+  function enregistrer() {
+    poserSelection();
+    const texte = ecrireTexte(doc);
+    telecharger(new Blob([texte], { type: 'text/plain;charset=utf-8' }), `${doc.nom}.txt`);
+    modifie = false;
+    garderBrouillon();
+    demanderDessin();
+  }
+
+  /** Planche PNG : toutes les images côte à côte, à la taille réelle. */
+  function exporterPng() {
+    const d = documentVisible();
+    const c = creer('canvas', { width: d.w * d.images.length, height: d.h });
+    const g = c.getContext('2d');
+    d.images.forEach((img, i) => g.putImageData(versImageData(img), i * d.w, 0));
+    c.toBlob((blob) => {
+      if (blob) telecharger(blob, `${doc.nom}.png`);
+      else annoncer('Export PNG impossible.', true);
+    }, 'image/png');
+  }
+
+  /** Lit les pixels d'un PNG : couleur « #rrggbb », ou null pour le transparent. */
+  async function lirePng(fichier) {
+    let source;
+    if (window.createImageBitmap) {
+      source = await createImageBitmap(fichier, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' });
+    } else {
+      source = await new Promise((ok, ko) => {
+        const url = URL.createObjectURL(fichier);
+        const img = new Image();
+        img.onload = () => { URL.revokeObjectURL(url); ok(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('image illisible')); };
+        img.src = url;
+      });
+    }
+    const w = source.width, h = source.height;
+    if (w > TAILLE_MAX || h > TAILLE_MAX) {
+      throw new Error(`image de ${w} × ${h}. Le maximum est ${TAILLE_MAX} × ${TAILLE_MAX}. Il faut un PNG à la taille du jeu.`);
+    }
+    const c = creer('canvas', { width: w, height: h });
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(source, 0, 0);
+    const d = g.getImageData(0, 0, w, h).data;
+    const pixels = new Array(w * h);
+    const couleurs = new Set();
+    for (let i = 0; i < w * h; i++) {
+      if (d[i * 4 + 3] < 128) { pixels[i] = null; continue; }
+      pixels[i] = '#' + hex2(d[i * 4]) + hex2(d[i * 4 + 1]) + hex2(d[i * 4 + 2]);
+      couleurs.add(pixels[i]);
+    }
+    return { w, h, pixels, couleurs };
+  }
+
+  /** Un PNG devient une grille. Les couleurs absentes de la palette y sont ajoutées. */
+  async function importerPng(fichier) {
+    let png;
+    try {
+      png = await lirePng(fichier);
+    } catch (e) {
+      annoncer(`${fichier.name} : ${e.message}`, true);
+      return;
+    }
+    if (png.couleurs.size > COULEURS_PNG_MAX) {
+      annoncer(`${fichier.name} : ${png.couleurs.size} couleurs. Le maximum est ${COULEURS_PNG_MAX}. Réduire les couleurs avant l'import.`, true);
+      return;
+    }
+    const memeTaille = png.w === doc.w && png.h === doc.h;
+    const choix = await ouvrirBoite('Importer un PNG',
+      `${fichier.name} : ${png.w} × ${png.h} pixels, ${png.couleurs.size} couleur${png.couleurs.size > 1 ? 's' : ''}. `
+      + (memeTaille ? 'Il a la taille du sprite : il peut devenir une image de plus.' : 'Le dessin en cours sera remplacé. La palette est gardée.'),
+      [
+        { texte: 'Annuler', valeur: null },
+        ...(memeTaille ? [{ texte: 'Ajouter comme image', valeur: 'ajouter', principal: true }] : []),
+        { texte: 'Remplacer le dessin', valeur: 'remplacer', principal: !memeTaille },
+      ]);
+    if (!choix) return;
+
+    // Lettres des couleurs : celles de la palette, sinon une lettre libre.
+    const palette = doc.palette.map((c) => ({ ...c }));
+    const lettres = new Map(palette.map((c) => [c.hex.toLowerCase(), c.lettre]).reverse());
+    const prises = new Set(palette.map((c) => c.lettre));
+    for (const hex of png.couleurs) {
+      if (lettres.has(hex)) continue;
+      const lettre = Array.from(LETTRES).find((l) => !prises.has(l) && !LETTRES_INTERDITES.has(l));
+      if (!lettre) { annoncer('Plus de lettre libre pour les couleurs de ce PNG.', true); return; }
+      prises.add(lettre);
+      lettres.set(hex, lettre);
+      palette.push({ lettre, hex });
+    }
+    const img = png.pixels.map((hex) => (hex === null ? VIDE : lettres.get(hex)));
+    const ajoutees = palette.length - doc.palette.length;
+
+    poserSelection();
+    selection = null;
+    empiler();
+    doc.palette = palette;
+    if (choix === 'ajouter') {
+      doc.images.splice(vue.image + 1, 0, img);
+      vue.image += 1;
+    } else {
+      doc.nom = nomPropre(fichier.name);
+      doc.commentaires = [];
+      doc.w = png.w;
+      doc.h = png.h;
+      doc.images = [img];
+      vue.image = 0;
+    }
+    if (!couleurChoisie()) vue.lettre = doc.palette.length ? doc.palette[0].lettre : '';
+    marquer();
+    majTout();
+    if (choix === 'remplacer') ajusterZoom();
+    annoncer(`PNG importé. ${ajoutees} couleur${ajoutees > 1 ? 's ajoutées' : ' ajoutée'} à la palette.`);
+  }
+
+  async function boiteTaille() {
+    const { bloc, lire } = champsTaille(doc.w, doc.h);
+    const corps = creer('div', {}, bloc,
+      creer('p', { classe: 'aide', texte: 'Le dessin reste en haut à gauche. Ce qui dépasse est coupé. Toutes les images changent de taille.' }));
+    if (!(await ouvrirBoite('Taille du canevas', corps, [
+      { texte: 'Annuler', valeur: false }, { texte: 'Appliquer', valeur: true, principal: true },
+    ]))) return;
+    const taille = lire();
+    if (taille) changerTaille(taille.w, taille.h);
+  }
+
+  /** Les lignes de commentaire du fichier, modifiables. */
+  async function boiteNotes() {
+    const zone = creer('textarea', { value: doc.commentaires.map((l) => l.replace(/^# ?/, '')).join('\n'), spellcheck: false });
+    const corps = creer('div', {},
+      creer('p', { classe: 'aide', texte: 'Une note par ligne. Elles sont écrites en tête du fichier, après « # ».' }), zone);
+    if (!(await ouvrirBoite('Notes du fichier', corps, [
+      { texte: 'Annuler', valeur: false }, { texte: 'Valider', valeur: true, principal: true },
+    ]))) return;
+    const lignes = zone.value.split('\n').map((l) => l.trimEnd()).filter((l) => l.trim() !== '').map((l) => `# ${l}`);
+    if (lignes.join('\n') === doc.commentaires.join('\n')) return;
+    empiler();
+    doc.commentaires = lignes;
+    marquer();
+  }
+
+  /** Les couleurs du jeu. Un clic ajoute la couleur, ou la choisit si elle est déjà là. */
+  function boitePaletteJeu() {
+    const grille = creer('div', { classe: 'jeu-grille' });
+    const remplirGrille = () => {
+      grille.replaceChildren(...PALETTE_JEU.map(([nom, code]) => {
+        const hex = '#' + code;
+        const presente = chercherCouleur(hex);
+        const b = creer('button', { type: 'button', classe: 'jeu' + (presente ? ' present' : '') },
+          creer('i'), creer('span', {}, nom, creer('small', { texte: presente ? `${hex} · ${presente.lettre}` : hex })));
+        b.firstChild.style.background = hex;
+        b.title = presente ? `Déjà dans la palette, lettre ${presente.lettre}` : `Ajouter ${nom}`;
+        b.addEventListener('click', () => {
+          if (presente) choisirCouleur(presente.lettre);
+          else ajouterCouleur(hex, nom);
+          remplirGrille();
+        });
+        return b;
+      }));
+    };
+    remplirGrille();
+    const corps = creer('div', {},
+      creer('p', { classe: 'aide', texte: 'Cliquer sur une couleur pour l\'ajouter à la palette. Un cadre vert : elle y est déjà.' }), grille);
+    return ouvrirBoite('Palette du jeu', corps, [{ texte: 'Fermer', valeur: true, principal: true }]);
+  }
+
+  // =====================================================================
+  //  Branchements : boutons, champs, clavier, glisser-déposer
+  // =====================================================================
+
+  $('btn-nouveau').addEventListener('click', nouveau);
+  $('btn-ouvrir').addEventListener('click', () => $('fichier-txt').click());
+  $('btn-enregistrer').addEventListener('click', enregistrer);
+  $('btn-importer-png').addEventListener('click', () => $('fichier-png').click());
+  $('btn-exporter-png').addEventListener('click', exporterPng);
+  $('btn-taille').addEventListener('click', boiteTaille);
+  $('btn-notes').addEventListener('click', boiteNotes);
+
+  for (const id of ['fichier-txt', 'fichier-png']) {
+    $(id).addEventListener('change', (e) => {
+      const fichier = e.target.files[0];
+      e.target.value = '';                 // pour pouvoir rouvrir le même fichier
+      if (fichier) ouvrirFichier(fichier);
+    });
+  }
+
+  $('nom').addEventListener('input', (e) => { doc.nom = nomPropre(e.target.value); marquer(); majEtat(); });
+  $('nom').addEventListener('change', (e) => { e.target.value = doc.nom; });
+
+  for (const b of $('outils').children) b.addEventListener('click', () => choisirOutil(b.dataset.outil));
+  $('btn-annuler').addEventListener('click', annuler);
+  $('btn-retablir').addEventListener('click', retablir);
+  $('btn-miroir-h').addEventListener('click', () => miroir(true));
+  $('btn-miroir-v').addEventListener('click', () => miroir(false));
+  for (const b of document.querySelectorAll('[data-decalage]')) {
+    const [dx, dy] = b.dataset.decalage.split(',').map(Number);
+    b.addEventListener('click', () => decaler(dx, dy));
+  }
+
+  const brancherCase = (id, cle) => $(id).addEventListener('change', (e) => {
+    vue[cle] = e.target.checked;
+    programmerBrouillon();
+    demanderDessin();
+  });
+  brancherCase('sym-v', 'symV');
+  brancherCase('sym-h', 'symH');
+  brancherCase('quadrillage', 'quadrillage');
+  brancherCase('oignon', 'oignon');
+
+  $('btn-zoom-moins').addEventListener('click', () => reglerZoom(vue.zoom - 1));
+  $('btn-zoom-plus').addEventListener('click', () => reglerZoom(vue.zoom + 1));
+  $('btn-zoom-ajuster').addEventListener('click', ajusterZoom);
+
+  $('btn-couleur-ajouter').addEventListener('click', () => {
+    const c = couleurChoisie();
+    ajouterCouleur(c ? c.hex.toLowerCase() : '#ffffff');
+    annoncer('Couleur ajoutée. Régler sa teinte avec le sélecteur.');
+  });
+  $('btn-palette-jeu').addEventListener('click', boitePaletteJeu);
+  $('btn-couleur-supprimer').addEventListener('click', supprimerCouleur);
+  $('btn-couleur-nettoyer').addEventListener('click', nettoyerPalette);
+  $('couleur-choix').addEventListener('input', (e) => changerHex(e.target.value, true));
+  $('couleur-choix').addEventListener('change', () => { couleurEnEdition = false; });
+  $('couleur-hex').addEventListener('change', (e) => {
+    const m = /^#?([0-9a-fA-F]{6})$/.exec(e.target.value.trim());
+    if (m) changerHex('#' + m[1].toLowerCase(), false);
+    else annoncer('Code de couleur refusé. Exemple : #f5c451.', true);
+    majPalette();
+  });
+  $('couleur-lettre').addEventListener('change', (e) => changerLettre(e.target.value.trim()));
+
+  $('btn-image-ajouter').addEventListener('click', () => ajouterImage(false));
+  $('btn-image-dupliquer').addEventListener('click', () => ajouterImage(true));
+  $('btn-image-supprimer').addEventListener('click', supprimerImage);
+  $('btn-image-gauche').addEventListener('click', () => deplacerImage(-1));
+  $('btn-image-droite').addEventListener('click', () => deplacerImage(1));
+  $('vitesse').addEventListener('change', (e) => {
+    const v = borne(parseInt(e.target.value, 10) || FPS_DEFAUT, 1, 60);
+    e.target.value = v;
+    if (v === doc.fps) return;
+    empiler();
+    doc.fps = v;
+    marquer();
+  });
+  $('btn-lecture').addEventListener('click', () => {
+    vue.lecture = !vue.lecture;
+    indexApercu = vue.image;
+    programmerBrouillon();
+    majBoutons();
+    demanderDessin();
+  });
+
+  // Raccourcis du clavier.
+  /** Vrai si la cible est un champ où l'on tape. Une case à cocher ne bloque pas les raccourcis. */
+  function dansChampTexte(cible) {
+    if (!cible || !cible.matches) return false;
+    if (cible.matches('textarea, select')) return true;
+    return cible.matches('input') && !['checkbox', 'radio', 'button', 'file'].includes(cible.type);
+  }
+  const TOUCHES_OUTILS = { c: 'crayon', g: 'gomme', p: 'pot', i: 'pipette', s: 'selection' };
+  const TOUCHES_FLECHES = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  document.addEventListener('keydown', (e) => {
+    if (!$('voile').hidden) return;
+    const touche = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    const commande = e.ctrlKey || e.metaKey;
+    if (commande && touche === 's') { e.preventDefault(); enregistrer(); return; }
+    if (dansChampTexte(e.target)) return;   // on tape dans un champ : ses touches restent à lui
+    if (commande && touche === 'z') { e.preventDefault(); if (e.shiftKey) retablir(); else annuler(); return; }
+    if (commande && touche === 'y') { e.preventDefault(); retablir(); return; }
+    if (commande || e.altKey) return;
+    if (TOUCHES_OUTILS[touche]) { choisirOutil(TOUCHES_OUTILS[touche]); return; }
+    if (TOUCHES_FLECHES[touche]) { e.preventDefault(); decaler(...TOUCHES_FLECHES[touche]); return; }
+    if (touche === 'Escape') lacherSelection();
+    else if (touche === 'Delete' || touche === 'Backspace') { if (selection) { e.preventDefault(); effacerSelection(); } }
+    else if (touche === '+' || touche === '=') reglerZoom(vue.zoom + 1);
+    else if (touche === '-') reglerZoom(vue.zoom - 1);
+  });
+
+  // Glisser-déposer d'un fichier sur la page.
+  const porteFichiers = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+  let profondeurDepot = 0;
+  window.addEventListener('dragenter', (e) => {
+    if (!porteFichiers(e)) return;
+    e.preventDefault();
+    profondeurDepot++;
+    $('depot').hidden = false;
+  });
+  window.addEventListener('dragover', (e) => { if (porteFichiers(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', () => {
+    profondeurDepot = Math.max(0, profondeurDepot - 1);
+    if (profondeurDepot === 0) $('depot').hidden = true;
+  });
+  window.addEventListener('drop', (e) => {
+    profondeurDepot = 0;
+    $('depot').hidden = true;
+    if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+    e.preventDefault();
+    ouvrirFichier(e.dataTransfer.files[0]);
+  });
+
+  // Le brouillon est aussi gardé quand la page se ferme ou passe à l'arrière-plan.
+  window.addEventListener('pagehide', garderBrouillon);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') garderBrouillon(); });
+
+  // =====================================================================
+  //  Démarrage
+  // =====================================================================
+
+  creerApercus();
+  if (restaurerBrouillon()) {
+    majTout();
+  } else {
+    // Premier lancement : un canevas vide et quelques couleurs du jeu.
+    const depart = ['ink', 'steelDark', 'steel', 'steelLight', 'white', 'cyan', 'orange', 'gold', 'crimson'];
+    const palette = [];
+    for (const nom of depart) {
+      const code = PALETTE_JEU.find((c) => c[0] === nom)[1];
+      const lettre = [nom[0].toUpperCase(), ...LETTRES].find((l) => !palette.some((c) => c.lettre === l));
+      palette.push({ lettre, hex: '#' + code });
+    }
+    chargerDocument({ commentaires: [], palette, w: 32, h: 16, images: [imageVide(32, 16)], fps: FPS_DEFAUT }, 'sprite');
+    ajusterZoom();
+  }
+  choisirOutil(vue.outil);
+  battre();
+
+  // Accès pour les essais automatiques (lecture seule de l'état, et les deux fonctions du format).
+  window.editeurSprites = {
+    lireTexte,
+    ecrireTexte,
+    etat: () => {
+      const d = documentVisible();
+      return {
+        nom: d.nom, w: d.w, h: d.h, fps: d.fps,
+        palette: d.palette.map((c) => ({ ...c })),
+        images: d.images.map((img) => img.join('')),
+        image: vue.image, outil: vue.outil, lettre: vue.lettre, zoom: vue.zoom, modifie,
+      };
+    },
+  };
+})();
+</script>
+</body>
+</html>
