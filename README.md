@@ -63,6 +63,10 @@ Il suit le secteur 1 (le score continue). Accès direct : **https://mromain-dev.
 - Le général Melchior : visez le cœur du réacteur, au milieu du buste. Ses jambes sont blindées, les ions glissent dessus. Quand sa visière vous vise, changez de hauteur ; quand il frappe le sol, restez en haut.
 - Sur un petit téléphone, la 3D peut passer d'elle-même à 30 images par seconde pour rester fluide.
 
+## Vous testez le jeu ?
+
+Les questions à se poser en jouant sont dans [TESTEURS.md](TESTEURS.md). Vos réponses servent à régler la difficulté.
+
 ## Essayer un niveau directement
 
 Sur l'écran titre, **N** (ou « Niveaux ») ouvre le menu des niveaux : début d'un secteur, point de passage, ou boss.
