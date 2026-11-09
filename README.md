@@ -30,10 +30,11 @@ Le son démarre au premier appui sur une touche ou au premier toucher : c'est un
 
 ## Conseils
 
-- Le laser tue, les ions neutralisent sans tuer. Chaque ennemi abattu coûte de la paix, même un drone (deux fois moins qu'un chasseur).
+- Une seule jauge : votre vie. Les tirs reçus l'entament, et chaque ennemi abattu aussi, même un drone (deux fois moins qu'un chasseur). Un boss en coûte 15 % : gardez-en en réserve.
+- Le laser tue, les ions neutralisent sans tuer, et rendent un peu de vie. Les trousses vertes en rendent beaucoup.
 - Le canon à ions a des charges limitées (affichées à côté de son nom). Ramassez les cellules bleues.
 - Abattez toute une vague : bonus de points, et une cellule d'ions pour une vague de drones. Les trajectoires sont toujours les mêmes : on peut les apprendre.
-- Quand un seul pilote d'une escadrille reste en vie, il clignote en rouge. L'abattre double les points… et la paix perdue. Épargnez-le aux ions, ou laissez-le filer.
+- Quand un seul pilote d'une escadrille reste en vie, il clignote en rouge. L'abattre double les points… et la vie perdue. Épargnez-le aux ions, ou laissez-le filer.
 - Après l'écran titre, choisissez votre tunnel de lancement : Recrue (facile), Émissaire (normal) ou Diplomate (exigeant).
 
 ## Secteur 2 : les chantiers
