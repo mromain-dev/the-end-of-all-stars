@@ -26,6 +26,22 @@ Il se joue dans le navigateur, sur ordinateur ou sur téléphone (de préférenc
 | Couper le son | M | Menu pause |
 | Plein écran | F | « Plein écran » en haut à droite de l'écran titre, ou menu pause |
 
+## Manettes
+
+Xbox, PlayStation 4 et 5, manettes MFi (iPhone, iPad, Mac), Switch Pro, et la plupart des autres, sur ordinateur, Android, iPhone et iPad.
+
+| Action | Xbox | PlayStation |
+|---|---|---|
+| Se déplacer, choisir dans un menu | Stick gauche ou croix | Stick gauche ou croix |
+| Tirer, valider | A, ou gâchette droite | Croix, ou R2 |
+| Changer d'arme | X, Y, LB ou RB | Carré, Triangle, L1 ou R1 |
+| Retour, passer l'introduction | B | Rond |
+| Pause | Menu | Options |
+| Options de l'écran titre (scores, niveaux…) | Gauche, droite, puis A | Gauche, droite, puis Croix |
+
+Les consignes à l'écran prennent le nom des boutons de la manette utilisée. Les manettes qui le savent vibrent quand le vaisseau est touché, et sous les pas du général Melchior.
+Sur iPhone et iPad, appuyez d'abord sur un bouton de la manette : Safari ne la montre au jeu qu'à ce moment-là.
+
 Le son démarre au premier appui sur une touche ou au premier toucher : c'est une règle des navigateurs.
 
 ## Conseils
