@@ -38,13 +38,31 @@ Le son démarre au premier appui sur une touche ou au premier toucher : c'est un
 
 ## Secteur 2 : les chantiers
 
-Il suit le secteur 1 (le score continue). Accès direct : **https://mromain-dev.github.io/the-end-of-all-stars/#chantiers** (ou « Mini-jeux » sur l'écran titre).
+Il suit le secteur 1 (le score continue). Accès direct : **https://mromain-dev.github.io/the-end-of-all-stars/#chantiers** (ou « Niveaux » sur l'écran titre).
 
 - Les vitres se traversent : elles volent en éclats. On peut aussi tirer dedans.
 - Grues, anneaux qui tournent, bras de soudure, presses : il y a toujours un passage. Les conseils à l'écran préviennent avant chaque obstacle.
 - En ville, les voitures sont civiles : ne tirez pas dessus.
 - Le général Melchior : visez le cœur du réacteur, au milieu du buste. Ses jambes sont blindées, les ions glissent dessus. Quand sa visière vous vise, changez de hauteur ; quand il frappe le sol, restez en haut.
 - Sur un petit téléphone, la 3D peut passer d'elle-même à 30 images par seconde pour rester fluide.
+
+## Essayer un niveau directement
+
+Sur l'écran titre, **N** (ou « Niveaux ») ouvre le menu des niveaux : début d'un secteur, point de passage, ou boss.
+On y choisit aussi la difficulté, et si les mini-jeux se jouent.
+
+Des liens directs, à envoyer aux testeurs :
+
+| Pour tester | Lien |
+|---|---|
+| Le menu des niveaux | https://mromain-dev.github.io/the-end-of-all-stars/#niveaux |
+| Le colonel Gaspard (boss 1) | https://mromain-dev.github.io/the-end-of-all-stars/#gaspard |
+| Les chantiers, au début | https://mromain-dev.github.io/the-end-of-all-stars/#chantiers |
+| Le hall d'assemblage | https://mromain-dev.github.io/the-end-of-all-stars/#hall |
+| La ville la nuit | https://mromain-dev.github.io/the-end-of-all-stars/#ville |
+| Le général Melchior (boss 2) | https://mromain-dev.github.io/the-end-of-all-stars/#melchior |
+
+Pour passer les mini-jeux, ajoutez `?sansminijeux` avant le `#` : https://mromain-dev.github.io/the-end-of-all-stars/?sansminijeux#ville
 
 ## Plein écran
 
