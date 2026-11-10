@@ -9,6 +9,17 @@ Des réponses courtes suffisent. Inutile de donner votre nom.
 
 1. Sur quoi jouez-vous ? (téléphone, tablette, ordinateur ; clavier, doigt ou manette, et laquelle)
 
+## Nouveau dans cette version
+
+Le secteur 1 s'anime. Regardez en particulier :
+- le drone, qui ondule des pattes et cligne de l'œil, et ses tirs qui battent comme un cœur ;
+- le colonel Gaspard : son cœur respire, son œil se charge avant chaque tir, et il se fissure et fume quand il est blessé ;
+- les explosions, avec une boule de feu dessinée ;
+- le Traversant, qui se cabre et pique quand il monte ou descend ;
+- le décor : une nébuleuse lointaine, et des épaves qui dérivent au loin.
+
+Dites-nous si une animation vous gêne, ou si quelque chose se lit mal.
+
 ## Le principe
 
 Il n'y a qu'une jauge : votre vie. Elle baisse quand vous êtes touché, et aussi chaque fois que vous tuez.

@@ -122,4 +122,4 @@ Le code source est développé à part ; ne modifiez pas `index.html` ici, il es
 Jeu sous licence CC BY-NC-SA 4.0 : partage et modification permis en citant Infinite Mega Stars, sans usage commercial, sous la même licence (voir [LICENSE](LICENSE)).
 Moteur Phaser, sous licence MIT.
 
-Sprites : illustrations générées par IA, retouchées à la main. La mention figure aussi sur l'écran titre du jeu.
+Sprites : illustrations générées par IA, retouchées à la main.

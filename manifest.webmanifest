@@ -1,7 +1,7 @@
 {
   "name": "The End of All Stars",
   "short_name": "End of Stars",
-  "description": "Shoot’em up rétro par le studio Infinite Mega Stars. Sprites : illustrations générées par IA, retouchées.",
+  "description": "Shoot’em up rétro par le studio Infinite Mega Stars.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
